@@ -13,10 +13,29 @@ const Index = () => {
   const [friendName, setFriendName] = useState("");
   const [copied, setCopied] = useState(false);
 
+  // T&C state
+  const [showTerms, setShowTerms] = useState(false);
+  const [hasSkipped, setHasSkipped] = useState(false);
+  const [viewingTerms, setViewingTerms] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+
   useEffect(() => {
     setFirstUseTimestamp();
     setEntries(getEntries());
+    
+    // Check T&C approval
+    if (localStorage.getItem("terms_accepted") !== "true") {
+      setShowTerms(true);
+    } else {
+      setTermsAccepted(true);
+    }
   }, []);
+
+  const acceptTerms = () => {
+    localStorage.setItem("terms_accepted", "true");
+    setTermsAccepted(true);
+    setShowTerms(false);
+  };
 
   if (isExpired()) return <ExpiryGate />;
 
@@ -37,6 +56,53 @@ const Index = () => {
   return (
     <div className="min-h-[100dvh] bg-mystical relative overflow-hidden">
       <StarField />
+      
+      {/* T&C Modal */}
+      {showTerms && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="bg-secondary border border-primary/30 p-6 rounded-xl max-w-sm w-full relative glow-box-gold">
+            <h2 className="text-2xl font-heading text-primary mb-4 text-center">Terms & Conditions</h2>
+            
+            {!viewingTerms ? (
+              <div>
+                {hasSkipped && <p className="text-red-400 mb-4 text-center text-sm font-bold animate-shake">Haha, nice try. You actually have to read it. 🤡</p>}
+                <p className="text-foreground/80 mb-6 text-center text-sm">Before you see your destiny, you must accept our Terms & Conditions.</p>
+                <div className="flex gap-3">
+                  <button 
+                    onClick={() => setViewingTerms(true)}
+                    className="flex-1 px-4 py-3 bg-primary text-primary-foreground rounded-lg font-heading hover:opacity-90 transition-opacity whitespace-nowrap"
+                  >
+                    Read T&C
+                  </button>
+                  <button 
+                    onClick={() => setHasSkipped(true)}
+                    className="flex-1 px-4 py-3 bg-muted text-muted-foreground rounded-lg font-heading hover:opacity-90 transition-opacity"
+                  >
+                    Skip
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div className="bg-background/50 p-4 rounded-lg mb-6 text-sm text-foreground/90 leading-relaxed max-h-60 overflow-y-auto border border-border">
+                  <p>This is live in the browser so any faces will be seen by all.</p>
+                  <br />
+                  <p>If you want to delete it, follow my Instagram (<a href="https://instagram.com/itsnextgenfounder" target="_blank" rel="noreferrer" className="text-primary hover:underline">@itsnextgenfounder</a>) and message me "delete face" with your in-platform name.</p>
+                  <br />
+                  <p className="text-primary font-bold">Only then will it be deleted.</p>
+                </div>
+                <button 
+                  onClick={acceptTerms}
+                  className="w-full px-4 py-3 bg-primary text-primary-foreground rounded-lg font-heading hover:opacity-90 transition-opacity glow-box-gold"
+                >
+                  I Accept
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="relative z-10 max-w-4xl mx-auto px-4 py-6 md:py-12">
         {/* Challenge Banner */}
         {challenge && (
@@ -58,12 +124,18 @@ const Index = () => {
           <p className="text-sm md:text-base text-accent font-heading mt-1">Advanced AI face analysis powered by neural networks</p>
           <p className="text-muted-foreground mt-2 text-sm">🧬 AI-powered face analysis • 14 billion timelines scanned</p>
 
-          <Link
-            to="/scan"
+          <button
+            onClick={() => {
+              if (!termsAccepted) {
+                setShowTerms(true);
+              } else {
+                window.location.href = "/scan";
+              }
+            }}
             className="inline-block mt-8 px-8 py-4 bg-primary text-primary-foreground font-heading text-lg rounded-lg glow-box-gold hover:scale-105 transition-transform"
           >
             Scan My Future
-          </Link>
+          </button>
         </div>
 
         {/* Hall of Prophecies (not "Shame" — keep it disguised) */}
@@ -158,9 +230,18 @@ const Index = () => {
             </a>
             {" "}— Follow on Instagram ❤️
           </p>
-          <Link to="/admin" className="text-muted-foreground/50 hover:text-muted-foreground text-xs inline-block">
-            Admin
-          </Link>
+          <div>
+            <Link to="/admin" className="text-muted-foreground/50 hover:text-muted-foreground text-xs inline-block">
+              Admin
+            </Link>
+            <span className="text-muted-foreground/50 mx-2">•</span>
+            <button 
+              onClick={() => { setShowTerms(true); setViewingTerms(true); }} 
+              className="text-muted-foreground/50 hover:text-muted-foreground text-xs inline-block"
+            >
+              Terms & Conditions
+            </button>
+          </div>
         </footer>
       </div>
     </div>
