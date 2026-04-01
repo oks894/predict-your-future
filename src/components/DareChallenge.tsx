@@ -90,44 +90,44 @@ const DareChallengeModal = ({ entryId, entryName, onClose }: Props) => {
   const progressPct = ((dare.durationMs - msLeft) / dare.durationMs) * 100;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/85 p-4 backdrop-blur-sm">
-      <div className="bg-secondary border border-primary/30 rounded-2xl w-full max-w-md shadow-[0_0_40px_rgba(212,175,55,0.2)] animate-float-slow">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/90 p-4 backdrop-blur-xl">
+      <div className="bg-black/40 border-[0.5px] border-white/10 rounded-3xl w-full max-w-md shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] backdrop-blur-2xl overflow-hidden before:absolute before:inset-0 before:-z-10 before:bg-gradient-to-b before:from-white/5 before:to-transparent before:pointer-events-none animate-float-slow">
 
         {/* OFFER PHASE */}
         {phase === "offer" && (
-          <div className="p-6">
-            <div className="text-center mb-5">
-              <span className="text-5xl block mb-3">🎲</span>
-              <h2 className="font-heading text-2xl text-primary glow-gold">Dare Challenge</h2>
-              <p className="text-muted-foreground text-sm mt-1">The Oracle demands proof of your bravery, {entryName}.</p>
+          <div className="p-8">
+            <div className="text-center mb-8">
+              <span className="text-6xl block mb-4 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">🎲</span>
+              <h2 className="font-heading text-3xl font-black text-foreground mb-1 tracking-wider uppercase">Dare Challenge</h2>
+              <p className="text-primary/70 text-xs tracking-widest uppercase mt-2">The Oracle demands proof, {entryName}.</p>
             </div>
-            <div className="p-4 rounded-xl bg-background/60 border border-border mb-4">
-              <div className="flex items-start gap-3">
-                <span className="text-2xl mt-0.5">⚡</span>
-                <p className="text-foreground text-base leading-relaxed font-medium">{dare.text}</p>
+            <div className="p-6 rounded-2xl bg-white/5 border border-white/5 mb-6 shadow-inner backdrop-blur-md">
+              <div className="flex items-start gap-4">
+                <span className="text-2xl mt-0.5 animate-pulse text-gold">⚡</span>
+                <p className="text-foreground/90 text-lg leading-relaxed font-medium">{dare.text}</p>
               </div>
             </div>
-            <div className="flex items-center justify-between mb-5">
-              <span className={`text-xs font-bold px-3 py-1 rounded-full border uppercase tracking-wider ${difficultyColor}`}>
+            <div className="flex items-center justify-between mb-8 opacity-80">
+              <span className={`text-[10px] font-black px-3 py-1.5 rounded-full border uppercase tracking-widest ${difficultyColor}`}>
                 {dare.difficulty} difficulty
               </span>
-              <span className="text-muted-foreground text-xs">⏱ {formatMs(dare.durationMs)} limit</span>
+              <span className="text-muted-foreground text-xs font-mono tracking-widest">⏱ {formatMs(dare.durationMs)} limit</span>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-4">
               <button
                 onClick={handleChicken}
-                className="flex-1 px-4 py-3 bg-muted/50 text-muted-foreground rounded-xl font-heading hover:bg-muted transition-colors uppercase tracking-wide text-sm"
+                className="flex-1 px-4 py-4 bg-white/5 border border-white/10 text-muted-foreground rounded-2xl font-bold tracking-widest hover:bg-white/10 hover:text-foreground transition-all uppercase text-xs"
               >
                 🐔 Chicken Out
               </button>
               <button
                 onClick={handleAccept}
-                className="flex-[2] px-4 py-3 bg-primary text-primary-foreground rounded-xl font-heading hover:opacity-90 transition-opacity glow-box-gold uppercase tracking-wide text-sm"
+                className="flex-[2] px-4 py-4 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground rounded-2xl font-black shadow-[0_0_30px_rgba(230,194,122,0.3)] hover:shadow-[0_0_50px_rgba(230,194,122,0.5)] hover:-translate-y-1 transition-all uppercase tracking-widest text-xs"
               >
                 ⚡ Accept Challenge
               </button>
             </div>
-            <button onClick={onClose} className="w-full text-center text-muted-foreground/50 text-xs mt-3 hover:text-muted-foreground transition-colors">
+            <button onClick={onClose} className="w-full text-center text-white/30 text-xs mt-6 hover:text-white transition-colors uppercase tracking-widest font-bold">
               Skip this time
             </button>
           </div>
@@ -135,47 +135,56 @@ const DareChallengeModal = ({ entryId, entryName, onClose }: Props) => {
 
         {/* COUNTDOWN + PROOF PHASE */}
         {phase === "countdown" && (
-          <div className="p-6">
-            <div className="text-center mb-4">
-              <p className="text-muted-foreground text-sm mb-2">Time remaining</p>
-              <p className={`font-heading text-6xl glow-gold ${msLeft < 60000 ? 'text-red-400 animate-pulse' : 'text-primary'}`}>
+          <div className="p-8">
+            <div className="text-center mb-8">
+              <p className="text-primary/60 text-xs mb-3 uppercase tracking-widest font-bold">Time remaining</p>
+              <p className={`font-mono text-7xl font-black tracking-tighter ${msLeft < 60000 ? 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,0.8)] animate-pulse' : 'text-foreground drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]'}`}>
                 {formatMs(msLeft)}
               </p>
-              <div className="mt-3 h-2 bg-muted rounded-full overflow-hidden">
+              <div className="mt-6 h-[2px] bg-white/10 rounded-full overflow-hidden relative">
+                <div className="absolute inset-0 bg-primary/20 blur-sm" />
                 <div
-                  className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-1000"
+                  className="h-full bg-primary rounded-full transition-all duration-1000 shadow-[0_0_10px_#fff] relative z-10"
                   style={{ width: `${100 - progressPct}%` }}
                 />
               </div>
             </div>
-            <div className="p-4 rounded-xl bg-background/60 border border-border mb-4">
-              <p className="text-foreground text-sm leading-relaxed">📋 {dare.text}</p>
+            <div className="p-5 rounded-2xl bg-white/5 border border-white/5 mb-6 backdrop-blur-md">
+              <p className="text-foreground/90 text-sm leading-relaxed font-medium">📋 {dare.text}</p>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-4">
               <label className="block">
-                <p className="text-foreground text-sm mb-2 font-medium">Upload your proof screenshot / video:</p>
-                <input
-                  type="file"
-                  accept="image/*,video/*"
-                  onChange={handleProofUpload}
-                  className="w-full px-4 py-3 bg-input border border-border rounded-xl text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                />
+                <p className="text-primary/70 text-xs mb-3 tracking-widest uppercase font-bold">Upload Proof Screenshot/Video:</p>
+                <div className="relative group cursor-pointer w-full bg-black/40 border border-white/10 rounded-2xl hover:border-white/30 transition-all overflow-hidden flex items-center justify-center p-4 min-h-[120px]">
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    onChange={handleProofUpload}
+                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-20"
+                  />
+                   {proof ? (
+                     <img src={proof} alt="proof" className="absolute inset-0 w-full h-full object-cover z-10 opacity-60 mix-blend-screen" />
+                   ) : (
+                     <div className="text-center z-10 opacity-50 group-hover:opacity-100 transition-opacity">
+                       <span className="text-3xl block mb-2">📸</span>
+                       <span className="text-xs uppercase tracking-widest font-bold">Tap to Upload</span>
+                     </div>
+                   )}
+                </div>
               </label>
-              {proof && (
-                <img src={proof} alt="proof" className="w-full h-40 object-cover rounded-xl border border-primary/30" />
-              )}
+              
               <button
                 onClick={handleSubmitProof}
                 disabled={!proof}
-                className="w-full px-4 py-3 bg-green-600 text-foreground rounded-xl font-heading hover:bg-green-700 transition-colors uppercase tracking-wide disabled:opacity-40 disabled:cursor-not-allowed"
+                className="w-full px-4 py-4 bg-[#25D366]/20 border border-[#25D366]/30 text-[#25D366] rounded-2xl font-bold hover:bg-[#25D366]/30 transition-all uppercase tracking-widest disabled:opacity-30 disabled:cursor-not-allowed mt-2"
               >
                 ✅ Submit Proof
               </button>
               <button
                 onClick={handleChicken}
-                className="w-full px-4 py-2 text-muted-foreground text-xs hover:text-foreground transition-colors"
+                className="w-full px-4 py-3 text-red-400/50 text-xs hover:text-red-400 transition-colors uppercase tracking-widest font-bold mt-2"
               >
-                Give up (guaranteed shame board)
+                Give up (Guaranteed Shame)
               </button>
             </div>
           </div>

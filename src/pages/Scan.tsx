@@ -323,26 +323,35 @@ const Scan = () => {
         {/* STEP 1: Capture */}
         {step === "capture" && (
           <div className="text-center">
-            <h2 className="font-heading text-2xl text-primary glow-gold mb-6">Scanning Your Face...</h2>
-            <div className={`transition-transform duration-1000 ${countdown < 2 ? '-translate-y-4 animate-float-slow' : ''}`}>
-              <div className="relative mx-auto w-72 h-72 rounded-full overflow-hidden border-4 border-primary/50 glow-box-gold">
+            <h2 className="font-heading text-xl text-primary glow-gold mb-6 uppercase tracking-[0.2em]">Initiating Neural Link</h2>
+            <div className={`transition-transform duration-1000 ${countdown < 2 ? '-translate-y-4' : ''}`}>
+              <div className="relative mx-auto w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 rounded-2xl overflow-hidden border border-border bg-black/50 backdrop-blur-md shadow-[0_0_50px_rgba(230,194,122,0.1)]">
                 {cameraError ? (
-                  <div className="w-full h-full flex flex-col items-center justify-center bg-secondary/50">
-                    <p className="text-4xl mb-2">🔮</p>
-                    <p className="text-muted-foreground text-sm px-4">Scanning via neural link...</p>
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-black">
+                    <p className="text-4xl mb-4 animate-pulse">🔮</p>
+                    <p className="text-muted-foreground text-sm px-4 uppercase tracking-widest">Awaiting Biometrics...</p>
                   </div>
                 ) : (
-                  <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+                  <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover opacity-90 mix-blend-screen" />
                 )}
+                
+                {/* Targeting Reticles */}
+                <div className="absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-primary/60 rounded-tl-lg" />
+                <div className="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-primary/60 rounded-tr-lg" />
+                <div className="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-primary/60 rounded-bl-lg" />
+                <div className="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-primary/60 rounded-br-lg" />
+
+                {/* Overlays */}
+                <div className="absolute inset-x-0 h-[1px] bg-primary/30 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <div className="absolute inset-y-0 w-[1px] bg-primary/30 left-1/2 -translate-x-1/2 pointer-events-none" />
                 <div className="absolute inset-0 pointer-events-none">
-                  <div className="absolute inset-0 border-4 border-accent/30 rounded-full animate-pulse-glow" />
-                  <div className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent animate-scan-line" />
+                  <div className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent animate-scan-line shadow-[0_0_15px_rgba(230,194,122,0.8)]" />
                 </div>
               </div>
             </div>
-            <div className={`transition-all duration-1000 ${countdown < 2 ? 'opacity-0' : 'opacity-100'}`}>
-              <p className="mt-6 text-primary font-heading text-4xl">{countdown}</p>
-              <p className="text-muted-foreground text-sm mt-2">Hold still... scanning biometrics</p>
+            <div className={`transition-all duration-1000 ${countdown < 2 ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'}`}>
+              <p className="mt-8 text-primary font-heading text-5xl glow-gold">{countdown}</p>
+              <p className="text-muted-foreground text-xs mt-3 uppercase tracking-[0.3em]">Hold Still • Analyzing Aura</p>
             </div>
           </div>
         )}
@@ -423,9 +432,9 @@ const Scan = () => {
               </div>
               <button
                 type="submit"
-                className="w-full py-4 bg-primary text-primary-foreground font-heading text-lg rounded-lg glow-box-gold hover:scale-[1.02] transition-transform"
+                className="w-full py-4 mt-6 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-heading text-lg rounded-xl shadow-[0_0_30px_rgba(230,194,122,0.3)] hover:shadow-[0_0_50px_rgba(230,194,122,0.5)] hover:-translate-y-1 transition-all uppercase tracking-widest font-black"
               >
-                Reveal My Roasted Meme 🔮
+                Reveal Timeline 🔮
               </button>
             </form>
           </div>
@@ -433,21 +442,24 @@ const Scan = () => {
 
         {/* STEP 3: Processing */}
         {step === "loading" && (
-          <div className="text-center py-12">
-            <div className="w-24 h-24 mx-auto mb-8 rounded-full border-4 border-primary/30 flex items-center justify-center glow-box-gold">
-              <span className="text-4xl animate-pulse">🔮</span>
+          <div className="text-center py-16">
+            <div className="w-24 h-24 mx-auto mb-10 relative">
+              <div className="absolute inset-0 border-[1px] border-primary/30 rounded-full animate-spin glow-box-gold" style={{ animationDuration: '3s' }} />
+              <div className="absolute inset-2 border-[1px] border-accent/40 rounded-full animate-spin mix-blend-screen" style={{ animationDuration: '2s', animationDirection: 'reverse' }} />
+              <div className="absolute inset-0 flex items-center justify-center text-4xl animate-pulse">🔮</div>
             </div>
-            <h2 className="font-heading text-2xl text-primary glow-gold mb-4">Processing Your Destiny...</h2>
-            <div className="max-w-xs mx-auto mb-4">
-              <div className="h-2 bg-secondary rounded-full overflow-hidden">
+            <h2 className="font-heading text-xl text-primary glow-gold mb-6 uppercase tracking-[0.2em] animate-pulse">Processing Timeline</h2>
+            <div className="max-w-xs mx-auto mb-6 relative">
+              <div className="absolute -inset-1 bg-primary/20 blur-md rounded-full" />
+              <div className="h-[2px] bg-secondary rounded-full overflow-hidden relative z-10">
                 <div
-                  className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-300"
+                  className="h-full bg-primary rounded-full transition-all duration-300 shadow-[0_0_10px_#fff]"
                   style={{ width: `${Math.min(loadingProgress, 100)}%` }}
                 />
               </div>
-              <p className="text-muted-foreground text-xs mt-2">{Math.min(Math.round(loadingProgress), 100)}% complete</p>
+              <p className="text-primary/60 font-mono text-xs mt-4 tracking-widest">{Math.min(Math.round(loadingProgress), 100)}% COMPILED</p>
             </div>
-            <p className="text-accent text-sm italic">{LOADING_MESSAGES[loadingMsg]}</p>
+            <p className="text-muted-foreground text-xs uppercase tracking-widest animate-pulse transition-opacity duration-500">{LOADING_MESSAGES[loadingMsg]}</p>
           </div>
         )}
 
@@ -470,16 +482,9 @@ const Scan = () => {
             <p className="text-muted-foreground text-sm mb-6 animate-float-slow">Your dignity has left the atmosphere 🚀</p>
 
             <div className="relative animate-float-slow mx-auto max-w-sm">
-              {/* Particle Escaping Auras */}
-              <div className="absolute inset-0 pointer-events-none z-0">
-                <div className="absolute top-1/2 left-1/4 w-4 h-4 rounded-full bg-accent/40 blur-sm animate-drift" style={{ animationDelay: '0s' }}></div>
-                <div className="absolute top-3/4 right-1/4 w-3 h-3 rounded-full bg-primary/40 blur-sm animate-drift" style={{ animationDelay: '1s' }}></div>
-                <div className="absolute top-1/4 left-3/4 w-6 h-6 rounded-full bg-accent/20 blur-md animate-drift" style={{ animationDelay: '2s' }}></div>
-              </div>
-
               <div
                 id="prophecy-card"
-                className="relative z-10 p-6 rounded-xl bg-gradient-to-b from-secondary to-card border border-primary/30 glow-box-gold overflow-hidden"
+                className="relative z-10 p-8 rounded-2xl bg-black/60 backdrop-blur-2xl border-[0.5px] border-white/10 glow-box-gold overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)] before:absolute before:inset-0 before:-z-10 before:bg-gradient-to-b before:from-white/5 before:to-transparent before:pointer-events-none"
               >
                 <div className="relative flex justify-center items-center h-32 mb-6">
                   {/* Crush Photo as the Burning Planet Core */}
@@ -503,9 +508,9 @@ const Scan = () => {
                   />
                 </div>
 
-              <h3 className="font-heading text-xl text-primary mb-1">{result.name}</h3>
-              <p className="text-muted-foreground text-sm mb-4">Age {result.age} • Crushing on {result.crushName}</p>
-              <div className="flex flex-col gap-3 text-left">
+              <h3 className="font-heading text-2xl text-foreground font-black mb-1 glow-gold">{result.name}</h3>
+              <p className="text-primary/70 text-xs tracking-widest uppercase mb-6">Age {result.age} • Target: {result.crushName}</p>
+              <div className="flex flex-col gap-4 text-left">
                 {result.roastText.split('\n\n').map((part, idx) => {
                   if (!part.trim()) return null;
                   const isSystemScore = part.includes("[ SYSTEM RATING:");
@@ -513,14 +518,14 @@ const Scan = () => {
                   return (
                     <div 
                       key={idx} 
-                      className={`p-4 rounded-xl border shadow-lg ${!isCapturing ? 'animate-shatter' : ''} ${
+                      className={`p-5 rounded-xl border-[0.5px] shadow-2xl ${!isCapturing ? 'animate-shatter' : ''} ${
                         isSystemScore 
-                          ? 'bg-primary/30 border-primary text-primary font-bold text-base md:text-lg text-center glow-gold uppercase tracking-wide backdrop-blur-md' 
+                          ? 'bg-primary/5 border-primary/50 text-primary font-black text-lg text-center glow-gold uppercase tracking-[0.1em] backdrop-blur-md' 
                           : isTimer
-                          ? 'bg-red-500/20 border-red-500/50 text-red-100 font-bold text-center font-mono tracking-wider'
-                          : 'bg-black/90 border-border text-white text-lg md:text-xl font-semibold leading-relaxed shadow-[0_4px_30px_rgba(0,0,0,0.6)] backdrop-blur-md'
+                          ? 'bg-red-500/10 border-red-500/30 text-red-400 font-bold text-center font-mono tracking-widest'
+                          : 'bg-white/5 border-white/10 text-foreground/90 text-lg font-medium leading-relaxed backdrop-blur-xl'
                       }`}
-                      style={{ animationDelay: `${idx * 0.2}s` }}
+                      style={{ animationDelay: `${idx * 0.15}s` }}
                     >
                       {part.trim().replace(/^\[|\]$/g, '')}
                     </div>
@@ -541,15 +546,15 @@ const Scan = () => {
             <div className="flex flex-col gap-3 justify-center mt-8">
               <button
                 onClick={downloadCardAsImage}
-                className="px-6 py-3 bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-opacity"
+                className="px-6 py-4 bg-white/5 border border-white/10 text-foreground backdrop-blur-md rounded-xl hover:bg-white/10 hover:border-white/20 transition-all font-bold tracking-wide"
               >
-                📸 Download as Image
+                📸 Export Neural Readout
               </button>
               <a
                 href={`https://wa.me/?text=${encodeURIComponent(`Bro this AI just humiliated me 💀 It literally rated my face as ${result.roastPercentage}% CRINGE! I double dare you to scan yours and see what it says 👇\n${appUrl}/#/scan`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-6 py-3 bg-green-600 text-foreground rounded-lg hover:bg-green-700 transition-colors text-center"
+                className="px-6 py-4 bg-[#25D366]/20 border border-[#25D366]/30 text-[#25D366] rounded-xl hover:bg-[#25D366]/30 transition-colors text-center font-bold tracking-wide"
               >
                 Share on WhatsApp
               </a>
@@ -559,7 +564,7 @@ const Scan = () => {
                   setCopied(true);
                   setTimeout(() => setCopied(false), 2000);
                 }}
-                className="px-6 py-3 bg-secondary text-foreground rounded-lg hover:bg-secondary/80 transition-colors flex-[2] flex items-center justify-center gap-2"
+                className="px-6 py-4 bg-primary/20 border border-primary/30 text-primary rounded-xl hover:bg-primary/30 transition-colors flex-[2] flex items-center justify-center gap-2 font-bold tracking-wide uppercase"
               >
                 {copied ? "Copied! ✅" : "📋 Challenge a Friend (Duel)"}
               </button>
