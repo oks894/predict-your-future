@@ -360,7 +360,7 @@ export function exportToCSV(entries: ScanEntry[]): void {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "futurescan_data.csv";
+  a.download = "predictyourfuture_data.csv";
   a.click();
   URL.revokeObjectURL(url);
 }

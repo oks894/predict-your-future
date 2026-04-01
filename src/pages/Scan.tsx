@@ -157,7 +157,7 @@ const Scan = () => {
         useCORS: true,
       });
       const link = document.createElement("a");
-      link.download = `futurescan-${formData.name || "prophecy"}.png`;
+      link.download = `predictyourfuture-${formData.name || "prophecy"}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
     } catch (err) {

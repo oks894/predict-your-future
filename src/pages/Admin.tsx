@@ -60,7 +60,7 @@ const Admin = () => {
       <div className="min-h-screen bg-terminal flex items-center justify-center px-4">
         <form onSubmit={handleLogin} className={`max-w-sm w-full ${shake ? "animate-shake" : ""}`}>
           <div className="p-6 border border-terminal-green/30 rounded-lg">
-            <h1 className="font-terminal text-terminal text-xl mb-1">$ futurescan --admin</h1>
+            <h1 className="font-terminal text-terminal text-xl mb-1">$ predictyourfuture --admin</h1>
             <p className="font-terminal text-terminal/60 text-sm mb-6">Enter access code:</p>
             <input
               type="password"
@@ -82,7 +82,7 @@ const Admin = () => {
 
   return (
     <div className="min-h-[100dvh] bg-terminal text-terminal font-terminal p-4 md:p-8">
-      <h1 className="text-2xl mb-1">$ futurescan --admin --dashboard</h1>
+      <h1 className="text-2xl mb-1">$ predictyourfuture --admin --dashboard</h1>
       <p className="text-terminal/50 text-sm mb-6">[ CLASSIFIED — LEVEL 6 CLEARANCE ]</p>
 
       {/* Stats */}
