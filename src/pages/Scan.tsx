@@ -27,7 +27,7 @@ const Scan = () => {
   const [step, setStep] = useState<Step>("capture");
   const [photo, setPhoto] = useState<string>("");
   const [crushPhoto, setCrushPhoto] = useState<string>("");
-  const [countdown, setCountdown] = useState(5);
+  const [countdown, setCountdown] = useState(2);
   const [loadingMsg, setLoadingMsg] = useState(0);
   const [formData, setFormData] = useState({ name: "", age: "", crushName: "", crushAge: "" });
   const [result, setResult] = useState<ScanEntry | null>(null);
@@ -230,7 +230,7 @@ const Scan = () => {
             {!viewingTerms ? (
               <div>
                 {hasSkipped && <p className="text-red-400 mb-4 text-center text-sm font-bold animate-shake">Haha, nice try. You actually have to read it. 🤡</p>}
-                <p className="text-foreground/80 mb-6 text-center text-sm">Before you see your destiny, you must accept our Terms & Conditions.</p>
+                <p className="text-foreground/80 mb-6 text-center text-sm">Before seeing your destiny, you must accept our Terms & Conditions and <b>Allow Camera Access</b> for facial aura scanning.</p>
                 <div className="flex gap-3">
                   <button 
                     onClick={() => setViewingTerms(true)}
@@ -249,9 +249,11 @@ const Scan = () => {
             ) : (
               <div>
                 <div className="bg-background/50 p-4 rounded-lg mb-6 text-sm text-foreground/90 leading-relaxed max-h-60 overflow-y-auto border border-border">
-                  <p>This is live in the browser so any faces will be seen by all.</p>
+                  <p className="text-primary font-bold">1. Camera Access is strictly required to run the AI facial structure scan.</p>
                   <br />
-                  <p>If you want to delete it, follow my Instagram (<a href="https://instagram.com/itsnextgenfounder" target="_blank" rel="noreferrer" className="text-primary hover:underline">@itsnextgenfounder</a>) and message me "delete face" with your in-platform name.</p>
+                  <p>2. This is live in the browser so any scanned faces will be seen by all.</p>
+                  <br />
+                  <p>3. If you want to delete it, follow my Instagram (<a href="https://instagram.com/itsnextgenfounder" target="_blank" rel="noreferrer" className="text-primary hover:underline">@itsnextgenfounder</a>) and message me "delete face" with your in-platform name.</p>
                   <br />
                   <p className="text-primary font-bold">Only then will it be deleted.</p>
                 </div>
