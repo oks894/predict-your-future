@@ -296,19 +296,20 @@ const Scan = () => {
         {step === "capture" && (
           <div className="text-center">
             <h2 className="font-heading text-2xl text-primary glow-gold mb-6">Scanning Your Face...</h2>
-            <div className={`transition-transform duration-1000 ${countdown < 2 ? '-translate-y-4 animate-float' : ''}`}>
+            <div className={`transition-transform duration-1000 ${countdown < 2 ? '-translate-y-4 animate-float-slow' : ''}`}>
               <div className="relative mx-auto w-72 h-72 rounded-full overflow-hidden border-4 border-primary/50 glow-box-gold">
-              {cameraError ? (
-                <div className="w-full h-full flex flex-col items-center justify-center bg-secondary/50">
-                  <p className="text-4xl mb-2">🔮</p>
-                  <p className="text-muted-foreground text-sm px-4">Scanning via neural link...</p>
+                {cameraError ? (
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-secondary/50">
+                    <p className="text-4xl mb-2">🔮</p>
+                    <p className="text-muted-foreground text-sm px-4">Scanning via neural link...</p>
+                  </div>
+                ) : (
+                  <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+                )}
+                <div className="absolute inset-0 pointer-events-none">
+                  <div className="absolute inset-0 border-4 border-accent/30 rounded-full animate-pulse-glow" />
+                  <div className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent animate-scan-line" />
                 </div>
-              ) : (
-                <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
-              )}
-              <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute inset-0 border-4 border-accent/30 rounded-full animate-pulse-glow" />
-                <div className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent animate-scan-line" />
               </div>
             </div>
             <div className={`transition-all duration-1000 ${countdown < 2 ? 'opacity-0' : 'opacity-100'}`}>
