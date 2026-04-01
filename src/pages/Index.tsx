@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { getEntries, setFirstUseTimestamp, isExpired } from "@/lib/storage";
 import type { ScanEntry } from "@/lib/storage";
 import StarField from "@/components/StarField";
@@ -12,6 +12,7 @@ const Index = () => {
   const [shareLink, setShareLink] = useState("");
   const [friendName, setFriendName] = useState("");
   const [copied, setCopied] = useState(false);
+  const navigate = useNavigate();
 
   // T&C state
   const [showTerms, setShowTerms] = useState(false);
@@ -129,7 +130,7 @@ const Index = () => {
               if (!termsAccepted) {
                 setShowTerms(true);
               } else {
-                window.location.href = "/scan";
+                navigate("/scan");
               }
             }}
             className="inline-block mt-8 px-8 py-4 bg-primary text-primary-foreground font-heading text-lg rounded-lg glow-box-gold hover:scale-105 transition-transform"
