@@ -89,7 +89,7 @@ export default function IdiotBoard() {
                       {rankInfo.emoji} {rankInfo.label}
                     </p>
                     
-                    {entry.shameReason && (
+                    {entry.shameReason ? (
                       <div className="mt-3 bg-black/40 border border-white/5 p-3 rounded-lg flex items-start gap-2">
                         <span className="text-red-400 mt-0.5 shrink-0">💀</span>
                         <p className="text-muted-foreground text-xs italic leading-relaxed text-left">
@@ -97,12 +97,26 @@ export default function IdiotBoard() {
                           "{entry.shameReason}"
                         </p>
                       </div>
-                    )}
-                    
-                    {!entry.shameReason && entry.scanType === 'challenge-chicken' && (
-                      <div className="mt-3 bg-red-900/20 border border-red-500/20 p-2 rounded-lg text-left">
+                    ) : entry.scanType === 'challenge-chicken' ? (
+                      <div className="mt-3 bg-red-900/20 border border-red-500/20 p-2 rounded-lg text-left inline-block">
                         <p className="text-red-400 text-xs font-bold uppercase tracking-wider flex items-center gap-2">
-                          <span>🐓</span> Chickened out of a challenge
+                          <span>🐓</span> Chickened out of a dare
+                        </p>
+                      </div>
+                    ) : entry.scanType === 'love' ? (
+                      <div className="mt-3 bg-pink-900/20 border border-pink-500/20 p-3 rounded-lg flex items-start gap-2">
+                        <span className="text-pink-400 mt-0.5 shrink-0">💔</span>
+                        <p className="text-muted-foreground text-xs italic leading-relaxed text-left">
+                          <span className="font-bold text-pink-400 uppercase tracking-widest text-[10px] block mb-1">Delusion Target</span>
+                          Caught simulating a timeline with: <strong>{entry.crushName}</strong>
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="mt-3 bg-primary/10 border border-primary/20 p-3 rounded-lg flex items-start gap-2">
+                        <span className="text-primary mt-0.5 shrink-0">🔮</span>
+                        <p className="text-muted-foreground text-xs italic leading-relaxed text-left">
+                          <span className="font-bold text-primary uppercase tracking-widest text-[10px] block mb-1">Future Exposed</span>
+                          The AI scanned their face and completely destroyed their ego.
                         </p>
                       </div>
                     )}

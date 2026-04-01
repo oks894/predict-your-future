@@ -87,7 +87,7 @@ const Index = () => {
               onClick={() => navigate("/challenges")}
               className="px-8 py-4 bg-secondary text-foreground font-heading text-lg rounded-lg border border-primary/40 hover:border-primary hover:scale-105 transition-all w-full sm:w-auto"
             >
-              ⚔️ Challenge Arena
+              ⚔️ Dare To Challenge
             </button>
           </div>
         </div>
