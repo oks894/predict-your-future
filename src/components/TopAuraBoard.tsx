@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { ScanEntry, getTopAuraEntries, getAuraRank } from "@/lib/storage";
 import AuraCardGenerator from "./AuraCard";
 
@@ -85,7 +85,7 @@ const TopAuraBoard = () => {
                   {e.name}
                 </p>
                 <p className="text-sm font-bold uppercase tracking-widest mt-0.5" style={{ color: rankColor, textShadow: `0 0 10px ${rankColor}80` }}>
-                  {getAuraRank(e.aura || 0).title}
+                  {getAuraRank(e.aura || 0).label}
                 </p>
               </div>
 
