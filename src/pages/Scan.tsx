@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import html2canvas from "html2canvas";
 import { useNavigate } from "react-router-dom";
 import { addEntry, generateRoast, isExpired } from "@/lib/storage";
 import type { ScanEntry } from "@/lib/storage";
