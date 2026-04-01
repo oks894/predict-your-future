@@ -48,14 +48,15 @@ const Index = () => {
         )}
 
         {/* Hero */}
-        <div className="text-center mb-16">
-          <h1 className="font-heading text-4xl md:text-6xl text-primary glow-gold mb-4">
-            FutureScan AI
+        <div className="text-center mb-10 md:mb-16">
+          <h1 className="font-heading text-3xl md:text-6xl text-primary glow-gold mb-2 md:mb-4">
+            April Fools' Idiot
           </h1>
-          <p className="text-xl md:text-2xl text-foreground/80 font-heading">
-            See Your Destiny
+          <p className="text-lg md:text-2xl text-foreground/80 font-heading">
+            🤡 Happy April Fools' Day 🤡
           </p>
-          <p className="text-muted-foreground mt-2">🔮 AI-powered face analysis • 14 billion timelines scanned</p>
+          <p className="text-sm md:text-base text-accent font-heading mt-1">You really thought AI could predict your future?</p>
+          <p className="text-muted-foreground mt-2 text-sm">🔮 AI-powered face analysis • 14 billion timelines scanned</p>
 
           <a
             href="/scan"
