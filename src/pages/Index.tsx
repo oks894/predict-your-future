@@ -135,6 +135,7 @@ const Index = () => {
             </div>
             
             <div className="grid gap-4 max-h-[500px] overflow-y-auto pr-2 overflow-x-hidden p-1">
+              {displayEntries.map((e, i) => (
                 <div key={e.id} className={`flex flex-col sm:flex-row items-start sm:items-center gap-4 p-5 rounded-2xl bg-secondary/90 border-2 ${e.scanType === 'love' ? 'border-accent/40 shadow-[0_0_15px_rgba(255,0,100,0.2)]' : 'border-primary/40 shadow-[0_0_15px_rgba(212,175,55,0.2)]'} hover:border-primary hover:bg-secondary transition-all ${i % 3 === 0 ? 'animate-float-slow' : i % 3 === 1 ? 'animate-float-medium' : 'animate-float-alt'}`}>
                   <div className="flex items-center gap-4 w-full sm:w-auto">
                     <span className={`font-heading text-2xl font-black w-10 text-center ${i === 0 ? 'text-primary glow-gold scale-125' : i === 1 ? 'text-silver' : 'text-primary/60'}`}>#{i + 1}</span>
