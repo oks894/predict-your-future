@@ -1,11 +1,14 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import html2canvas from "html2canvas";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { addEntry, generateGenZRoast, isExpired, getTier, addAura } from "@/lib/storage";
+import { addEntry, generateGenZRoast, isExpired, getTier, addAura, getAura, getAuraRank, getEntryById } from "@/lib/storage";
 import { playEerieScanSound, playDunDunDuuun, playSadTrombone } from "@/lib/audio";
 import type { ScanEntry } from "@/lib/storage";
 import StarField from "@/components/StarField";
 import ExpiryGate from "@/components/ExpiryGate";
+import DareChallengeModal from "@/components/DareChallenge";
+import AuraCardGenerator from "@/components/AuraCard";
+import DuelResult from "@/components/DuelResult";
 
 const LOADING_MESSAGES = [
   "Analyzing facial structure...",
@@ -22,13 +25,14 @@ const Scan = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const challenge = searchParams.get("challenge");
+  const duelId = searchParams.get("duel");
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [step, setStep] = useState<Step>("capture");
   const [photo, setPhoto] = useState<string>("");
   const [crushPhoto, setCrushPhoto] = useState<string>("");
-  const [countdown, setCountdown] = useState(2);
+  const [countdown, setCountdown] = useState(1);
   const [loadingMsg, setLoadingMsg] = useState(0);
   const [formData, setFormData] = useState({ name: "", age: "", crushName: "", crushAge: "" });
   const [result, setResult] = useState<ScanEntry | null>(null);
@@ -36,6 +40,11 @@ const Scan = () => {
   const [cameraError, setCameraError] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [showDare, setShowDare] = useState(false);
+  const [showAuraCard, setShowAuraCard] = useState(false);
+  const [currentAura, setCurrentAura] = useState(100);
+  const [duelChallenger, setDuelChallenger] = useState<ScanEntry | null>(null);
+  const [showDuelResult, setShowDuelResult] = useState(false);
 
   // T&C state (Session storage means it resets every time they close the tab)
   const [showTerms, setShowTerms] = useState(false);
@@ -50,7 +59,13 @@ const Scan = () => {
     } else {
       setTermsAccepted(true);
     }
-  }, []);
+
+    if (duelId) {
+      getEntryById(duelId).then(entry => {
+        if (entry) setDuelChallenger(entry);
+      });
+    }
+  }, [duelId]);
 
   const acceptTerms = () => {
     sessionStorage.setItem("terms_accepted", "true");
@@ -168,6 +183,7 @@ const Scan = () => {
       timestamp: Date.now(),
       scanType: 'future',
       roastPercentage: gen.percentage,
+      aura: getAura()
     };
     
     // Add success aura points
@@ -179,6 +195,10 @@ const Scan = () => {
 
     await addEntry(entry);
     setResult(entry);
+    
+    if (duelChallenger) {
+      setShowDuelResult(true);
+    }
   };
 
   const downloadCardAsImage = () => {
@@ -238,9 +258,17 @@ const Scan = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
           <div className="bg-secondary border border-primary/30 p-6 rounded-xl max-w-sm w-full relative glow-box-gold">
             <h2 className="text-2xl font-heading text-primary mb-4 text-center">Terms & Conditions</h2>
-            
             {!viewingTerms ? (
               <div>
+                {duelChallenger && (
+                  <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl mb-4 flex items-center gap-4 animate-float-slow">
+                    <img src={duelChallenger.facePhoto} className="w-12 h-12 rounded-full border border-red-500/50" alt="" />
+                    <p className="text-red-400 font-bold text-sm leading-tight text-left">
+                      ⚔️ {duelChallenger.name} challenged you to a Roast Duel!<br/>
+                      <span className="text-xs text-muted-foreground font-normal">Prepare to get evaluated.</span>
+                    </p>
+                  </div>
+                )}
                 {hasSkipped && <p className="text-red-400 mb-4 text-center text-sm font-bold animate-shake">Haha, nice try. You actually have to read it. 🤡</p>}
                 <p className="text-foreground/80 mb-6 text-center text-sm">Before seeing your destiny, you must accept our Terms & Conditions and <b>Allow Camera Access</b> for facial aura scanning.</p>
                 <div className="flex gap-3">
@@ -426,7 +454,19 @@ const Scan = () => {
         {/* STEP 4: Result */}
         {step === "result" && result && (
           <div className="text-center">
-            <h2 className="font-heading text-2xl text-primary glow-gold mb-6">Your Roasted Meme</h2>
+            <h2 className="font-heading text-2xl text-primary glow-gold mb-2">Your Roasted Meme</h2>
+            {/* Live Aura display */}
+            {(() => {
+              const aura = getAura();
+              const rank = getAuraRank(aura);
+              return (
+                <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full border" style={{ borderColor: `${rank.color}44`, background: `${rank.color}11` }}>
+                  <span>{rank.emoji}</span>
+                  <span className="font-bold text-sm" style={{ color: rank.color }}>{aura} Aura</span>
+                  <span className="text-muted-foreground text-xs">— {rank.label}</span>
+                </div>
+              );
+            })()}
             <p className="text-muted-foreground text-sm mb-6 animate-float-slow">Your dignity has left the atmosphere 🚀</p>
 
             <div className="relative animate-float-slow mx-auto max-w-sm">
@@ -473,12 +513,12 @@ const Scan = () => {
                   return (
                     <div 
                       key={idx} 
-                      className={`p-4 rounded-xl border shadow-sm animate-shatter ${
+                      className={`p-4 rounded-xl border shadow-lg ${!isCapturing ? 'animate-shatter' : ''} ${
                         isSystemScore 
-                          ? 'bg-primary/20 border-primary text-primary font-bold text-center glow-gold uppercase tracking-wide' 
+                          ? 'bg-primary/30 border-primary text-primary font-bold text-base md:text-lg text-center glow-gold uppercase tracking-wide backdrop-blur-md' 
                           : isTimer
-                          ? 'bg-red-500/10 border-red-500/50 text-red-500 font-bold text-center animate-pulse'
-                          : 'bg-background/80 border-border text-foreground text-base leading-relaxed italic'
+                          ? 'bg-red-500/20 border-red-500/50 text-red-100 font-bold text-center font-mono tracking-wider'
+                          : 'bg-black/90 border-border text-white text-lg md:text-xl font-semibold leading-relaxed shadow-[0_4px_30px_rgba(0,0,0,0.6)] backdrop-blur-md'
                       }`}
                       style={{ animationDelay: `${idx * 0.2}s` }}
                     >
@@ -515,13 +555,13 @@ const Scan = () => {
               </a>
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText(`Bro this AI just humiliated me 💀 It literally rated my face as ${result.roastPercentage}% CRINGE! I double dare you to scan yours and see what it says 👇\n${appUrl}/#/scan`);
+                  navigator.clipboard.writeText(`Bro this AI just humiliated me 💀 It literally rated my face as ${result.roastPercentage}% CRINGE! I double dare you to scan yours and see who has more aura 👇\n${appUrl}/#/scan?duel=${result.id}`);
                   setCopied(true);
                   setTimeout(() => setCopied(false), 2000);
                 }}
-                className="px-6 py-3 bg-secondary text-foreground rounded-lg hover:bg-secondary/80 transition-colors"
+                className="px-6 py-3 bg-secondary text-foreground rounded-lg hover:bg-secondary/80 transition-colors flex-[2] flex items-center justify-center gap-2"
               >
-                {copied ? "Copied! ✅" : "📋 Copy Text"}
+                {copied ? "Copied! ✅" : "📋 Challenge a Friend (Duel)"}
               </button>
             </div>
 
@@ -531,7 +571,50 @@ const Scan = () => {
             >
               ← Back to Home
             </Link>
+
+            {/* Dare + Aura Card CTAs */}
+            <div className="mt-6 flex flex-col gap-3">
+              <button
+                onClick={() => setShowDare(true)}
+                className="w-full px-6 py-4 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl font-heading text-base hover:opacity-90 transition-opacity shadow-[0_0_20px_rgba(234,88,12,0.4)] uppercase tracking-wide"
+              >
+                🎲 Accept a Dare Challenge
+              </button>
+              <button
+                onClick={() => { setCurrentAura(getAura()); setShowAuraCard(true); }}
+                className="w-full px-6 py-4 border border-primary/50 text-primary rounded-xl font-heading text-base hover:bg-primary/10 transition-colors uppercase tracking-wide"
+              >
+                ✨ Generate My Aura Card
+              </button>
+            </div>
           </div>
+        )}
+
+        {/* Dare Modal */}
+        {showDare && result && (
+          <DareChallengeModal
+            entryId={result.id}
+            entryName={result.name}
+            onClose={() => setShowDare(false)}
+          />
+        )}
+
+        {/* Aura Card Modal */}
+        {showAuraCard && result && (
+          <AuraCardGenerator
+            entry={result}
+            aura={currentAura}
+            onClose={() => setShowAuraCard(false)}
+          />
+        )}
+
+        {/* Duel Result Modal */}
+        {showDuelResult && result && duelChallenger && (
+          <DuelResult
+            challenger={duelChallenger}
+            defender={result}
+            onClose={() => setShowDuelResult(false)}
+          />
         )}
       </div>
     </div>

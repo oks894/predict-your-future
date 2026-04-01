@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
-import { getEntries, setFirstUseTimestamp, isExpired, getTier, addAura, getAdminUpiId } from "@/lib/storage";
+import { getEntries, setFirstUseTimestamp, isExpired, getTier, addAura, getAdminUpiId, getAdminIgAccount, updateEntryDare, getAura, getAuraRank } from "@/lib/storage";
 import type { ScanEntry } from "@/lib/storage";
 import StarField from "@/components/StarField";
 import ExpiryGate from "@/components/ExpiryGate";
+import ShameBoard from "@/components/ShameBoard";
+import AuraCardGenerator from "@/components/AuraCard";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
@@ -15,6 +17,9 @@ const Index = () => {
   const [shameTab, setShameTab] = useState<'new' | 'delusional' | 'cringe'>('new');
   const [cowardPromptEntry, setCowardPromptEntry] = useState<ScanEntry | null>(null);
   const [paymentClicked, setPaymentClicked] = useState(false);
+  const [proofText, setProofText] = useState("");
+  const [isSubmittingProof, setIsSubmittingProof] = useState(false);
+  const [showAuraCard, setShowAuraCard] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -83,6 +88,12 @@ const Index = () => {
               Love Calculator 💔
             </button>
             <button
+              onClick={() => setShowAuraCard(true)}
+              className="px-8 py-4 border border-primary/50 text-primary font-heading text-lg rounded-lg hover:bg-primary/10 transition-colors w-full sm:w-auto"
+            >
+              ✨ Aura Card
+            </button>
+            <button
               onClick={() => navigate("/challenges")}
               className="px-8 py-4 bg-secondary text-foreground font-heading text-lg rounded-lg border border-primary/40 hover:border-primary hover:scale-105 transition-all w-full sm:w-auto"
             >
@@ -149,9 +160,18 @@ const Index = () => {
                            {e.scanType === 'love' ? 'Love Fail' : 'Future Fail'}
                          </span>
                        </p>
-                       <button onClick={() => setCowardPromptEntry(e)} className="text-[10px] shrink-0 font-bold bg-green-500/10 text-green-400 border border-green-500/30 px-3 py-1 flex items-center gap-1 rounded hover:bg-green-500/20 transition-colors uppercase tracking-wider">
-                         Remove (₹1)
-                       </button>
+                       {e.dareStatus === 'pending_removal' ? (
+                      <span className="text-[10px] shrink-0 font-bold bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 px-3 py-1 flex items-center gap-1 rounded uppercase tracking-wider">
+                         Pending Review
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => { setCowardPromptEntry(e); setPaymentClicked(false); setProofText(""); }}
+                        className="text-[10px] shrink-0 font-bold bg-green-500/10 text-green-400 border border-green-500/30 px-3 py-1 flex items-center gap-1 rounded hover:bg-green-500/20 transition-colors uppercase tracking-wider"
+                      >
+                        Remove (₹1)
+                      </button>
+                    )}
                     </div>
                     <p className="text-primary font-bold text-sm mb-1">
                       {getTier(e.roastPercentage||0)} • {e.roastPercentage || 0}% {e.scanType === 'love' ? 'Delusional' : 'Cringe'}
@@ -172,218 +192,130 @@ const Index = () => {
           </div>
         )}
 
-        {/* Coward Fund Modal */}
-        {cowardPromptEntry && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
-            <div className="bg-secondary border border-primary/30 p-6 rounded-xl max-w-sm w-full relative shadow-[0_0_30px_rgba(212,175,55,0.2)]">
-              {!paymentClicked ? (
-                <div className="text-center">
-                  <span className="text-5xl mb-4 block">💸</span>
-                  <h2 className="text-2xl font-heading text-primary mb-2">The Coward Fund</h2>
-                  <p className="text-sm text-foreground/80 mb-6 leading-relaxed">
-                    Too embarrassed to leave <strong className="text-primary">{cowardPromptEntry.name}</strong> on the Global Shame Board? Pay a massive ₹1 fee to the Coward Fund to hide this record forever.
-                  </p>
-                  <div className="p-4 bg-background/50 rounded-xl mb-6 border border-border">
-                    <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider font-bold">Scan UPI QR to Pay ₹1</p>
-                    {getAdminUpiId() ? (
-                      <div className="w-32 h-32 bg-white mx-auto flex items-center justify-center rounded-lg p-2 shadow-inner">
-                        <img
-                          src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`upi://pay?pa=${getAdminUpiId()}&pn=PredictYourFuture&am=1.00&cu=INR`)}`}
-                          alt="UPI QR"
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-                    ) : (
-                      <p className="text-center text-muted-foreground italic text-sm py-6">
-                        UPI not configured — DM admin on Instagram to get removed.
-                      </p>
-                    )}
-                    {getAdminUpiId() && (
-                      <p className="text-center text-muted-foreground text-xs mt-2 font-mono">{getAdminUpiId()}</p>
-                    )}
-                  </div>
-                  <div className="flex gap-3">
-                    <button 
-                      onClick={() => setCowardPromptEntry(null)}
-                      className="flex-1 px-4 py-3 bg-muted/50 text-muted-foreground rounded-lg font-heading hover:bg-muted transition-colors uppercase tracking-wide text-sm"
-                    >
-                      Cancel
-                    </button>
-                    <button 
-                      onClick={() => setPaymentClicked(true)}
-                      className="flex-[1.5] px-4 py-3 bg-green-600 text-foreground rounded-lg font-heading hover:bg-green-700 transition-colors shadow-[0_0_15px_rgba(34,197,94,0.3)] uppercase tracking-wide text-sm"
-                    >
-                      I Paid! ✨
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center">
-                  <span className="text-6xl mb-4 block animate-shake">🤡</span>
-                  <h2 className="text-3xl font-heading text-accent mb-2">PRANKED!</h2>
-                  <p className="text-base text-foreground/90 mb-4 font-bold">
-                    You really thought you could buy your way out of embarrassment for 1 Rupee?
-                  </p>
-                  <div className="p-4 bg-accent/10 border border-accent/20 rounded-lg mb-6 text-left">
-                      <p className="text-sm text-muted-foreground mb-2">1. Your record is staying up permanently.</p>
-                      <p className="text-sm text-muted-foreground">2. The Cosmic Gods watched you try to bribe your way out of shame.</p>
-                  </div>
-                  <p className="text-center text-accent font-bold mb-6 text-lg animate-pulse">PENALTY: -50 AURA</p>
-                  <button 
-                    onClick={() => {
-                      addAura(-50);
-                      setPaymentClicked(false);
-                      setCowardPromptEntry(null);
-                    }}
-                    className="w-full px-4 py-4 bg-accent text-accent-foreground rounded-lg font-heading hover:opacity-90 transition-opacity shadow-[0_0_15px_rgba(255,0,100,0.4)] uppercase tracking-wider"
-                  >
-                    Accept Defeat
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Share Section */}
-        <div className="mb-16 space-y-4">
-          <h2 className="font-heading text-2xl text-primary glow-gold text-center mb-4">
-            📤 Share Your Prophecy
-          </h2>
-
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <a
-              href={`https://wa.me/?text=${whatsappText}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-6 py-3 bg-green-600 text-foreground rounded-lg text-center hover:bg-green-700 transition-colors"
-            >
-              Share on WhatsApp
-            </a>
-            <button
-              onClick={() => copyToClipboard(`Bro this AI just violated me 💀💀 It exposed my whole life! I double dare you to scan your face and see what it says about you 👇 ${scanUrl}`)}
-              className="px-6 py-3 bg-secondary text-foreground rounded-lg hover:bg-secondary/80 transition-colors"
-            >
-              {copied ? "Copied! ✅" : "Copy for Instagram"}
-            </button>
-          </div>
-
-          {/* Challenge Link */}
-          <div className="max-w-md mx-auto mt-8 border-t border-border/50 pt-6 text-center">
-            <h3 className="text-primary font-heading text-xl mb-2">⚔️ Challenge a Friend</h3>
-            <p className="text-muted-foreground text-sm mb-4">Send a direct challenge link to trigger their roast 👇</p>
-            <div className="flex flex-col sm:flex-row gap-2 mt-2">
-              <input
-                value={friendName}
-                onChange={e => setFriendName(e.target.value)}
-                placeholder="Friend's name"
-                className="flex-1 px-4 py-2 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-              />
-              <button
-                onClick={generateChallengeLink}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
-              >
-                Generate Link
-              </button>
-            </div>
-            {shareLink && (
-              <div className="mt-2 p-2 bg-muted rounded text-sm break-all">
-                <span className="text-muted-foreground">{shareLink}</span>
-                <button onClick={() => copyToClipboard(shareLink)} className="ml-2 text-primary hover:underline text-xs">
-                  Copy
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Footer */}
-        <footer className="text-center text-muted-foreground text-sm pb-8 space-y-2">
-          <p>Predict Your Future™ — Powered by Advanced Neural Networks 🧠</p>
-          <p className="text-xs">
-            Made by{" "}
-            <a
-              href="https://instagram.com/itsnextgenfounder"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              @itsnextgenfounder
-            </a>
-            {" "}— Follow on Instagram ❤️
-          </p>
-          <div>
-            <Link to="/admin" className="text-muted-foreground/50 hover:text-muted-foreground text-xs inline-block">
-              Admin
-            </Link>
-          </div>
-        </footer>
+        {/* Dare Failures Shame Board */}
+        <ShameBoard />
       </div>
+
+      {/* Footer */}
+      <footer className="text-center text-muted-foreground text-sm pb-8 space-y-2 mt-12 relative z-10">
+        <p>Predict Your Future™ — Powered by Advanced Neural Networks 🧠</p>
+        <p className="text-xs">
+          Made by{" "}
+          <a
+            href="https://instagram.com/itsnextgenfounder"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+          >
+            @itsnextgenfounder
+          </a>
+          {" "}— Follow on Instagram ❤️
+        </p>
+        <div>
+          <Link to="/admin" className="text-muted-foreground/50 hover:text-muted-foreground text-xs inline-block">
+            Admin
+          </Link>
+        </div>
+      </footer>
 
       {/* Coward Fund Modal — rendered at root level so it floats above everything */}
       {cowardPromptEntry && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
-          <div className="bg-secondary border border-primary/30 p-6 rounded-xl max-w-sm w-full relative shadow-[0_0_30px_rgba(212,175,55,0.2)]">
+          <div className="bg-secondary border border-primary/30 p-6 rounded-xl max-w-sm w-full relative shadow-[0_0_30px_rgba(212,175,55,0.2)] animate-in fade-in zoom-in duration-200">
             {!paymentClicked ? (
               <div className="text-center">
-                <span className="text-5xl mb-4 block">💸</span>
-                <h2 className="text-2xl font-heading text-primary mb-2">The Coward Fund</h2>
+                <span className="text-5xl mb-4 block">⚖️</span>
+                <h2 className="text-2xl font-heading text-primary mb-2">Buy Your Silence</h2>
                 <p className="text-sm text-foreground/80 mb-6 leading-relaxed">
-                  Too embarrassed to leave <strong className="text-primary">{cowardPromptEntry.name}</strong> on the Global Shame Board? Pay a massive ₹1 fee to hide this record forever.
+                  Too embarrassed to leave <strong className="text-primary">{cowardPromptEntry.name}</strong> on the global boards? Apply for removal below.
                 </p>
-                <div className="p-4 bg-background/50 rounded-xl mb-6 border border-border">
-                  <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider font-bold">Scan UPI QR to Pay ₹1</p>
-                  <div className="w-32 h-32 bg-white mx-auto flex items-center justify-center rounded-lg p-2 shadow-inner">
-                    <img
-                      src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=itsnextgenfounder@okicici&pn=PredictYourFuture&am=1.00&cu=INR"
-                      alt="UPI QR"
-                      className="w-full h-full object-contain"
+                  
+                <div className="space-y-4 mb-6 text-left">
+                  <div className="p-4 bg-background/50 rounded-xl border border-border">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold mb-2">Option 1: Pay ₹1</p>
+                    <div className="flex items-center gap-2">
+                      <code className="flex-1 px-3 py-2 bg-black/50 rounded border border-primary/20 text-xs font-mono text-primary truncate hover:text-clip">{getAdminUpiId() || "UPI Not Configured"}</code>
+                      <button onClick={() => navigator.clipboard.writeText(getAdminUpiId())} className="px-3 py-2 bg-primary/20 text-primary text-xs rounded border border-primary/30 hover:bg-primary/30 transition-colors shrink-0">Copy</button>
+                    </div>
+                  </div>
+                    
+                  <div className="p-4 bg-background/50 rounded-xl border border-border">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold mb-2">Option 2: Follow Admin</p>
+                    {getAdminIgAccount() ? (
+                      <a href={`https://instagram.com/${getAdminIgAccount().replace('@','')}`} target="_blank" rel="noreferrer" className="block w-full text-center py-2 bg-accent/20 text-accent text-sm rounded-lg border border-accent/30 hover:bg-accent/30 transition-colors">
+                        Follow {getAdminIgAccount()}
+                      </a>
+                    ) : (
+                      <p className="text-xs text-muted-foreground italic">IG Not Configured</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <input 
+                      value={proofText}
+                      onChange={(e) => setProofText(e.target.value)}
+                      placeholder="Enter your IG Handle or Trans ID" 
+                      className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
                     />
                   </div>
                 </div>
+
                 <div className="flex gap-3">
-                  <button
-                    onClick={() => setCowardPromptEntry(null)}
+                  <button 
+                    onClick={() => { setCowardPromptEntry(null); setProofText(""); }}
                     className="flex-1 px-4 py-3 bg-muted/50 text-muted-foreground rounded-lg font-heading hover:bg-muted transition-colors uppercase tracking-wide text-sm"
                   >
                     Cancel
                   </button>
-                  <button
-                    onClick={() => setPaymentClicked(true)}
-                    className="flex-[1.5] px-4 py-3 bg-green-600 text-foreground rounded-lg font-heading hover:bg-green-700 transition-colors shadow-[0_0_15px_rgba(34,197,94,0.3)] uppercase tracking-wide text-sm"
+                  <button 
+                    onClick={async () => {
+                      if (!proofText.trim()) return;
+                      setIsSubmittingProof(true);
+                      await updateEntryDare(cowardPromptEntry.id, { 
+                        dareStatus: 'pending_removal', 
+                        shameReason: proofText.trim() 
+                      });
+                      setEntries(entries.map(e => e.id === cowardPromptEntry.id ? { ...e, dareStatus: 'pending_removal', shameReason: proofText.trim() } : e));
+                      setIsSubmittingProof(false);
+                      setPaymentClicked(true);
+                    }}
+                    disabled={isSubmittingProof || !proofText.trim()}
+                    className="flex-[1.5] px-4 py-3 bg-primary text-primary-foreground rounded-lg font-heading hover:bg-primary/80 transition-colors shadow-[0_0_15px_rgba(212,175,55,0.3)] uppercase tracking-wide text-sm disabled:opacity-50"
                   >
-                    I Paid! ✨
+                    {isSubmittingProof ? "Sending..." : "Submit Proof ✨"}
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="text-center">
-                <span className="text-6xl mb-4 block">🤡</span>
-                <h2 className="text-3xl font-heading text-accent mb-2">PRANKED!</h2>
-                <p className="text-base text-foreground/90 mb-4 font-bold">
-                  You really thought ₹1 could buy your way out of eternal shame?
+              <div className="text-center py-6">
+                <span className="text-6xl mb-4 block animate-bounce">📨</span>
+                <h2 className="text-3xl font-heading text-primary mb-2">REQUEST SENT</h2>
+                <p className="text-base text-foreground/90 mb-6 font-medium">
+                  The admin will review your proof. Once verified, this cringe will be erased forever.
                 </p>
-                <div className="p-4 bg-accent/10 border border-accent/20 rounded-lg mb-6 text-left space-y-2">
-                  <p className="text-sm text-muted-foreground">1. Your record is staying up permanently. 💀</p>
-                  <p className="text-sm text-muted-foreground">2. The Cosmic Gods witnessed you try to bribe your way out.</p>
-                </div>
-                <p className="text-center text-accent font-bold mb-6 text-xl animate-pulse">
-                  PENALTY: -50 AURA ⚡
-                </p>
-                <button
+                <button 
                   onClick={() => {
-                    addAura(-50);
                     setPaymentClicked(false);
                     setCowardPromptEntry(null);
+                    setProofText("");
                   }}
-                  className="w-full px-4 py-4 bg-accent text-accent-foreground rounded-lg font-heading hover:opacity-90 transition-opacity shadow-[0_0_15px_rgba(255,0,100,0.4)] uppercase tracking-wider"
+                  className="w-full px-4 py-4 bg-secondary border border-border text-foreground hover:bg-secondary/80 rounded-lg font-heading transition-colors uppercase tracking-wider shadow-sm"
                 >
-                  Accept Defeat 😔
+                  Done
                 </button>
               </div>
             )}
           </div>
         </div>
+      )}
+
+      {/* Aura Card Modal (home page) */}
+      {showAuraCard && (
+        <AuraCardGenerator
+          entry={{ id: '', name: 'You', age: 0, crushName: '', crushAge: 0, facePhoto: '', roastText: '', timestamp: Date.now() } as any}
+          aura={getAura()}
+          onClose={() => setShowAuraCard(false)}
+        />
       )}
     </div>
   );
