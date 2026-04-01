@@ -21,7 +21,7 @@ const Index = () => {
 
   useEffect(() => {
     setFirstUseTimestamp();
-    setEntries(getEntries());
+    getEntries().then(setEntries);
     
     // Check T&C approval
     if (localStorage.getItem("terms_accepted") !== "true") {

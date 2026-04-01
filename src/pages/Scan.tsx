@@ -124,7 +124,7 @@ const Scan = () => {
     };
   }, [step]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const age = parseInt(formData.age);
     const crushAge = parseInt(formData.crushAge);
@@ -142,11 +142,14 @@ const Scan = () => {
       roastText: roast,
       timestamp: Date.now(),
     };
-    addEntry(entry);
-    setResult(entry);
+    // Start fake loading UI instantly
     setLoadingProgress(0);
     setLoadingMsg(0);
     setStep("loading");
+
+    // Add entry in background
+    await addEntry(entry);
+    setResult(entry);
   };
 
   const downloadCardAsImage = async () => {

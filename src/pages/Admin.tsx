@@ -22,7 +22,7 @@ const Admin = () => {
   }, []);
 
   useEffect(() => {
-    if (authed) setEntries(getEntries());
+    if (authed) getEntries().then(setEntries);
   }, [authed]);
 
   const handleLogin = (e: React.FormEvent) => {
@@ -37,8 +37,8 @@ const Admin = () => {
     }
   };
 
-  const handleClear = () => {
-    clearEntries();
+  const handleClear = async () => {
+    await clearEntries();
     setEntries([]);
     setShowClearConfirm(false);
   };

@@ -1,3 +1,5 @@
+import { supabase } from './supabase';
+
 export interface ScanEntry {
   id: string;
   name: string;
@@ -38,21 +40,35 @@ export function getHoursRemaining(): number {
   return Math.max(0, Math.round((EXPIRY_HOURS - elapsed) * 10) / 10);
 }
 
-export function getEntries(): ScanEntry[] {
-  try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
-  } catch { return []; }
+export async function getEntries(): Promise<ScanEntry[]> {
+  const { data, error } = await supabase
+    .from('entries')
+    .select('*')
+    .order('timestamp', { ascending: false });
+
+  if (error) {
+    console.error("Error fetching entries:", error);
+    return [];
+  }
+  return data || [];
 }
 
-export function addEntry(entry: ScanEntry) {
-  const entries = getEntries();
-  entries.push(entry);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+export async function addEntry(entry: ScanEntry) {
+  const { error } = await supabase.from('entries').insert([entry]);
+  if (error) {
+    console.error("Error inserting entry:", error);
+  }
 }
 
-export function clearEntries() {
-  localStorage.removeItem(STORAGE_KEY);
+export async function clearEntries() {
+  const { error } = await supabase
+    .from('entries')
+    .delete()
+    .neq('id', '00000000-0000-0000-0000-000000000000');
+    
+  if (error) {
+    console.error("Error clearing entries:", error);
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────
