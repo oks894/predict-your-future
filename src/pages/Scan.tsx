@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import html2canvas from "html2canvas";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { addEntry, generateGenZRoast, isExpired, getTier, addAura, getAura, getAuraRank, getEntryById } from "@/lib/storage";
@@ -244,7 +244,7 @@ const Scan = () => {
     reader.readAsDataURL(file);
   };
 
-  if (isExpired()) return <ExpiryGate />;
+  // if (isExpired()) return <ExpiryGate />; // Removed expiry logic
 
   const appUrl = window.location.origin;
 

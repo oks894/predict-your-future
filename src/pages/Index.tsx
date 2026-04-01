@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { getEntries, setFirstUseTimestamp, isExpired, getTier, addAura, getAdminUpiId, getAdminIgAccount, updateEntryDare, getAura, getAuraRank } from "@/lib/storage";
 import type { ScanEntry } from "@/lib/storage";
@@ -29,12 +29,12 @@ const Index = () => {
     }
   }, [challenge, navigate]);
 
+  // setFirstUseTimestamp(); // Removed expiry logic
   useEffect(() => {
-    setFirstUseTimestamp();
     getEntries().then(setEntries);
   }, []);
 
-  if (isExpired()) return <ExpiryGate />;
+  // if (isExpired()) return <ExpiryGate />; // Removed expiry gate
 
   const appUrl = window.location.origin;
   const scanUrl = `${appUrl}/#/scan`;
@@ -110,7 +110,7 @@ const Index = () => {
         {entries.length > 0 && (
           <div className="mb-16">
             <h2 className="font-heading text-3xl text-primary glow-gold text-center mb-6">
-              🌍 Global Shame Board
+              🌍 Global Idiot Ranking Board
             </h2>
             
             <div className="flex flex-wrap justify-center gap-2 mb-6">
@@ -135,22 +135,21 @@ const Index = () => {
             </div>
             
             <div className="grid gap-4 max-h-[500px] overflow-y-auto pr-2 overflow-x-hidden p-1">
-              {displayEntries.map((e, i) => (
-                <div key={e.id} className={`flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-xl bg-secondary/80 border border-primary/20 shadow-md hover:border-primary/50 hover:bg-secondary transition-all ${i % 3 === 0 ? 'animate-float-slow' : i % 3 === 1 ? 'animate-float-medium' : 'animate-float-alt'}`}>
+                <div key={e.id} className={`flex flex-col sm:flex-row items-start sm:items-center gap-4 p-5 rounded-2xl bg-secondary/90 border-2 ${e.scanType === 'love' ? 'border-accent/40 shadow-[0_0_15px_rgba(255,0,100,0.2)]' : 'border-primary/40 shadow-[0_0_15px_rgba(212,175,55,0.2)]'} hover:border-primary hover:bg-secondary transition-all ${i % 3 === 0 ? 'animate-float-slow' : i % 3 === 1 ? 'animate-float-medium' : 'animate-float-alt'}`}>
                   <div className="flex items-center gap-4 w-full sm:w-auto">
-                    <span className="text-primary font-heading text-xl font-bold w-8 text-center">#{i + 1}</span>
+                    <span className={`font-heading text-2xl font-black w-10 text-center ${i === 0 ? 'text-primary glow-gold scale-125' : i === 1 ? 'text-silver' : 'text-primary/60'}`}>#{i + 1}</span>
                     <div className="flex -space-x-4">
                       <img
                         src={e.facePhoto}
                         alt={e.name}
-                        className="w-16 h-16 rounded-full object-cover border-[3px] border-primary relative z-10"
+                        className="w-16 h-16 rounded-full object-cover border-[3px] border-primary relative z-10 shadow-lg"
                         loading="lazy"
                       />
                       {e.crushPhoto && (
                         <img
                           src={e.crushPhoto}
                           alt="Crush"
-                          className="w-16 h-16 rounded-full object-cover border-[3px] border-accent relative z-0"
+                          className="w-16 h-16 rounded-full object-cover border-[3px] border-accent relative z-0 shadow-lg shadow-accent/20"
                           loading="lazy"
                         />
                       )}
@@ -158,29 +157,29 @@ const Index = () => {
                   </div>
                   <div className="flex-1 min-w-0 ml-2 w-full">
                     <div className="flex justify-between items-start gap-2 mb-1">
-                       <p className="text-foreground font-medium truncate flex-1 flex flex-wrap items-center gap-2">
-                         <span className="text-lg">{e.name}</span>
-                         <span className={`px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider rounded-sm ${e.scanType === 'love' ? 'bg-accent/20 text-accent border border-accent/30' : 'bg-primary/20 text-primary border border-primary/30'}`}>
-                           {e.scanType === 'love' ? 'Love Fail' : 'Future Fail'}
+                       <div className="flex flex-wrap items-center gap-2">
+                         <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">{e.name}</span>
+                         <span className={`px-2 py-0.5 text-[10px] uppercase font-black tracking-widest rounded-md ${e.scanType === 'love' ? 'bg-accent/30 text-accent border border-accent/50' : 'bg-primary/30 text-primary border border-primary/50'}`}>
+                           {e.scanType === 'love' ? '❤️ Delusion' : '🪐 Cringe'}
                          </span>
-                       </p>
+                       </div>
                        {e.dareStatus === 'pending_removal' ? (
-                      <span className="text-[10px] shrink-0 font-bold bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 px-3 py-1 flex items-center gap-1 rounded uppercase tracking-wider">
-                         Pending Review
-                      </span>
-                    ) : (
-                      <button
-                        onClick={() => { setCowardPromptEntry(e); setPaymentClicked(false); setProofText(""); }}
-                        className="text-[10px] shrink-0 font-bold bg-green-500/10 text-green-400 border border-green-500/30 px-3 py-1 flex items-center gap-1 rounded hover:bg-green-500/20 transition-colors uppercase tracking-wider"
-                      >
-                        Remove (₹1)
-                      </button>
-                    )}
+                        <span className="text-[10px] shrink-0 font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/40 px-3 py-1 flex items-center gap-1 rounded-full uppercase tracking-widest">
+                           Reviewing Bribe
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => { setCowardPromptEntry(e); setPaymentClicked(false); setProofText(""); }}
+                          className="text-[10px] shrink-0 font-bold bg-green-500/20 text-green-400 border border-green-500/40 px-3 py-1 flex items-center gap-1 rounded-full hover:bg-green-500/40 transition-all uppercase tracking-widest hover:scale-105 active:scale-95"
+                        >
+                          Remove (₹1)
+                        </button>
+                      )}
                     </div>
-                    <p className="text-primary font-bold text-sm mb-1">
-                      {getTier(e.roastPercentage||0)} • {e.roastPercentage || 0}% {e.scanType === 'love' ? 'Delusional' : 'Cringe'}
+                    <p className={`font-black text-sm mb-1 ${e.scanType === 'love' ? 'text-accent' : 'text-primary'}`}>
+                      {getTier(e.roastPercentage||0)} • {e.roastPercentage || 0}% {e.scanType === 'love' ? 'DELUSIONAL' : 'CRINGE'}
                     </p>
-                    <p className="text-muted-foreground text-sm italic line-clamp-2" title={e.roastText.replace(/\n\n/g, ' ')}>
+                    <p className="text-foreground/90 text-sm italic font-medium leading-relaxed line-clamp-2 bg-black/20 p-2 rounded-lg border border-white/5" title={e.roastText.replace(/\n\n/g, ' ')}>
                       "{e.roastText.split('\n\n')[1] || e.roastText.replace(/\n\n/g, ' ')}"
                     </p>
                   </div>
