@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { addAura, getAura, getAuraRank } from "@/lib/storage";
 import StarField from "@/components/StarField";
@@ -112,7 +112,7 @@ const Challenges = () => {
             <div className="w-px h-10 bg-border" />
             <div className="text-center">
               <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Rank</p>
-              <p className="text-sm font-bold text-foreground">{rank}</p>
+              <p className="text-sm font-bold text-foreground">{rank.emoji} {rank.label}</p>
             </div>
           </div>
         </div>

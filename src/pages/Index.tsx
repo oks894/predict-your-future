@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
-import { getEntries, getTier, getAdminUpiId, getAdminIgAccount, updateEntryDare, getAura, getAuraRank } from "@/lib/storage";
+import { getEntries, getTier, getAdminUpiId, getAdminIgAccount, updateEntryDare, getAura, getAuraRank, syncAdminConfig } from "@/lib/storage";
 import type { ScanEntry } from "@/lib/storage";
 import StarField from "@/components/StarField";
 import ShameBoard from "@/components/ShameBoard";
@@ -17,6 +17,8 @@ const Index = () => {
   const [proofText, setProofText] = useState("");
   const [isSubmittingProof, setIsSubmittingProof] = useState(false);
   const [showAuraCard, setShowAuraCard] = useState(false);
+  const [upiId, setUpiIdState] = useState('');
+  const [igAccount, setIgAccountState] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,6 +28,10 @@ const Index = () => {
   }, [challenge, navigate]);
 
   useEffect(() => {
+    syncAdminConfig().then(() => {
+      setUpiIdState(getAdminUpiId());
+      setIgAccountState(getAdminIgAccount());
+    });
     getEntries().then(setEntries);
   }, []);
 
@@ -220,19 +226,21 @@ const Index = () => {
                   <div className="p-4 bg-background/50 rounded-xl border border-border">
                     <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold mb-2">Option 1: Pay ₹1</p>
                     <div className="flex items-center gap-2">
-                      <code className="flex-1 px-3 py-2 bg-black/50 rounded border border-primary/20 text-xs font-mono text-primary truncate">{getAdminUpiId() || "UPI Not Configured"}</code>
-                      <button onClick={() => navigator.clipboard.writeText(getAdminUpiId())} className="px-3 py-2 bg-primary/20 text-primary text-xs rounded border border-primary/30 hover:bg-primary/30 transition-colors shrink-0">Copy</button>
+                      <code className="flex-1 px-3 py-2 bg-black/50 rounded border border-primary/20 text-xs font-mono text-primary truncate">
+                        {upiId || "UPI Not Configured — set in Admin"}
+                      </code>
+                      <button onClick={() => navigator.clipboard.writeText(upiId)} className="px-3 py-2 bg-primary/20 text-primary text-xs rounded border border-primary/30 hover:bg-primary/30 transition-colors shrink-0">Copy</button>
                     </div>
                   </div>
 
                   <div className="p-4 bg-background/50 rounded-xl border border-border">
                     <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold mb-2">Option 2: Follow Admin</p>
-                    {getAdminIgAccount() ? (
-                      <a href={`https://instagram.com/${getAdminIgAccount().replace('@', '')}`} target="_blank" rel="noreferrer" className="block w-full text-center py-2 bg-accent/20 text-accent text-sm rounded-lg border border-accent/30 hover:bg-accent/30 transition-colors">
-                        Follow {getAdminIgAccount()}
+                    {igAccount ? (
+                      <a href={`https://instagram.com/${igAccount.replace('@', '')}`} target="_blank" rel="noreferrer" className="block w-full text-center py-2 bg-accent/20 text-accent text-sm rounded-lg border border-accent/30 hover:bg-accent/30 transition-colors">
+                        Follow {igAccount}
                       </a>
                     ) : (
-                      <p className="text-xs text-muted-foreground italic">IG Not Configured</p>
+                      <p className="text-xs text-muted-foreground italic">IG Not Configured — set in Admin</p>
                     )}
                   </div>
 

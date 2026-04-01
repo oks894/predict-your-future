@@ -297,12 +297,15 @@ export function generateGenZRoast(scanType: 'future' | 'love', name: string, cru
 const UPI_STORAGE_KEY = 'admin_upi_id';
 const IG_STORAGE_KEY = 'admin_ig_id';
 
+// Sync getters use localStorage as cache (set by admin on their device or loaded from Supabase)
 export function getAdminUpiId(): string {
   return localStorage.getItem(UPI_STORAGE_KEY) || '';
 }
 
 export function setAdminUpiId(upiId: string): void {
   localStorage.setItem(UPI_STORAGE_KEY, upiId);
+  // Also persist to Supabase so all users see it
+  supabase.from('config').upsert({ key: 'admin_upi_id', value: upiId }).then(() => {});
 }
 
 export function getAdminIgAccount(): string {
@@ -311,6 +314,18 @@ export function getAdminIgAccount(): string {
 
 export function setAdminIgAccount(igHandle: string): void {
   localStorage.setItem(IG_STORAGE_KEY, igHandle);
+  // Also persist to Supabase so all users see it
+  supabase.from('config').upsert({ key: 'admin_ig_id', value: igHandle }).then(() => {});
+}
+
+// Call this on app load to sync admin config from Supabase to localStorage
+export async function syncAdminConfig(): Promise<void> {
+  const { data } = await supabase.from('config').select('key, value').in('key', ['admin_upi_id', 'admin_ig_id']);
+  if (data) {
+    data.forEach((row: { key: string; value: string }) => {
+      localStorage.setItem(row.key, row.value);
+    });
+  }
 }
 
 export function exportToCSV(entries: ScanEntry[]): void {

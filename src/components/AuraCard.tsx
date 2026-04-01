@@ -1,28 +1,22 @@
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { ScanEntry, getAuraRank } from "@/lib/storage";
 
-interface Props {
-  entry: ScanEntry;
-  onClose: () => void;
-  onDownloadPost: () => void;
-  onDownloadStory: () => void;
-}
-
-const RANK_CONFIGS: Record<string, { bgColor: string; orbColor: string; glowColor: string; crackColor: string }> = {
-  'Cosmic Sigma':        { bgColor: '#0a0512', orbColor: '#FFD700', glowColor: 'rgba(255,215,0,0.6)',   crackColor: '#fff7d4' },
-  'Aura Intact':         { bgColor: '#0d0822', orbColor: '#C084FC', glowColor: 'rgba(192,132,252,0.5)', crackColor: '#e9d5ff' },
-  'Aura Cracking':       { bgColor: '#120800', orbColor: '#FB923C', glowColor: 'rgba(251,146,60,0.5)',  crackColor: '#fed7aa' },
-  'Aura Shattered':      { bgColor: '#120000', orbColor: '#F87171', glowColor: 'rgba(248,113,113,0.5)', crackColor: '#fecaca' },
-  'Aura Deleted':        { bgColor: '#080808', orbColor: '#6B7280', glowColor: 'rgba(107,114,128,0.4)', crackColor: '#d1d5db' },
-  'Negative Aura Entity':{ bgColor: '#000000', orbColor: '#1F2937', glowColor: 'rgba(30,30,30,0.8)',    crackColor: '#374151' },
+const RANK_CONFIGS: Record<string, { bgColor: string; orbColor: string; glowColor: string }> = {
+  'Cosmic Sigma':        { bgColor: '#0a0512', orbColor: '#FFD700', glowColor: 'rgba(255,215,0,0.6)'   },
+  'Aura Intact':         { bgColor: '#0d0822', orbColor: '#C084FC', glowColor: 'rgba(192,132,252,0.5)' },
+  'Aura Cracking':       { bgColor: '#120800', orbColor: '#FB923C', glowColor: 'rgba(251,146,60,0.5)'  },
+  'Aura Shattered':      { bgColor: '#120000', orbColor: '#F87171', glowColor: 'rgba(248,113,113,0.5)' },
+  'Aura Deleted':        { bgColor: '#080808', orbColor: '#6B7280', glowColor: 'rgba(107,114,128,0.4)' },
+  'Negative Aura Entity':{ bgColor: '#030303', orbColor: '#374151', glowColor: 'rgba(30,30,30,0.8)'    },
 };
 
-function drawAuraCard(
+function renderCard(
   canvas: HTMLCanvasElement,
   entry: ScanEntry,
   aura: number,
   width: number,
-  height: number
+  height: number,
+  faceImg?: HTMLImageElement
 ) {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
@@ -32,142 +26,138 @@ function drawAuraCard(
 
   const rank = getAuraRank(aura);
   const cfg = RANK_CONFIGS[rank.label] || RANK_CONFIGS['Aura Deleted'];
-  const isStory = height > width;
   const cx = width / 2;
+  const isStory = height > width;
   const orbY = isStory ? height * 0.42 : height * 0.45;
-  const orbR = Math.min(width, height) * (isStory ? 0.28 : 0.3);
+  const orbR = Math.min(width, height) * 0.3;
 
-  // Background
+  // Background gradient
   const bgGrad = ctx.createRadialGradient(cx, orbY, 0, cx, orbY, Math.max(width, height));
-  bgGrad.addColorStop(0, cfg.bgColor === '#000000' ? '#050505' : cfg.bgColor);
-  bgGrad.addColorStop(0.5, `${cfg.bgColor}ee`);
+  bgGrad.addColorStop(0, cfg.bgColor);
   bgGrad.addColorStop(1, '#000000');
   ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, width, height);
 
-  // Star particles
-  const rng = (seed: number) => (Math.sin(seed * 127.1) * 43758.5453) % 1;
+  // Stars
+  const rng = (s: number) => Math.abs((Math.sin(s * 127.1) * 43758.5453) % 1);
   for (let i = 0; i < 80; i++) {
-    const sx = rng(i) * width;
-    const sy = rng(i + 100) * height;
-    const ss = rng(i + 200) * 1.5 + 0.3;
-    const sa = rng(i + 300) * 0.7 + 0.3;
     ctx.beginPath();
-    ctx.arc(sx, sy, ss, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(255,255,255,${sa})`;
+    ctx.arc(rng(i) * width, rng(i + 100) * height, rng(i + 200) * 1.5 + 0.3, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,255,255,${rng(i + 300) * 0.6 + 0.2})`;
     ctx.fill();
   }
 
-  // Outer glow rings
+  // Glow rings
   for (let ring = 3; ring >= 1; ring--) {
     ctx.beginPath();
     ctx.arc(cx, orbY, orbR + ring * 18, 0, Math.PI * 2);
-    ctx.strokeStyle = cfg.glowColor.replace(')', `, ${0.15 / ring})`).replace('rgba', 'rgba');
+    ctx.strokeStyle = cfg.glowColor.replace(')', `, ${0.12 / ring})`).replace('rgba(', 'rgba(');
     ctx.lineWidth = 8;
     ctx.stroke();
   }
 
-  // Main orb gradient
+  // Orb
   const orbGrad = ctx.createRadialGradient(cx - orbR * 0.2, orbY - orbR * 0.2, 0, cx, orbY, orbR);
-  orbGrad.addColorStop(0, `${cfg.orbColor}dd`);
-  orbGrad.addColorStop(0.5, `${cfg.orbColor}99`);
+  orbGrad.addColorStop(0, `${cfg.orbColor}cc`);
+  orbGrad.addColorStop(0.5, `${cfg.orbColor}88`);
   orbGrad.addColorStop(1, `${cfg.orbColor}22`);
   ctx.beginPath();
   ctx.arc(cx, orbY, orbR, 0, Math.PI * 2);
   ctx.fillStyle = orbGrad;
   ctx.fill();
 
-  // Face photo clipped to orb
-  const faceImg = new Image();
-  faceImg.crossOrigin = 'anonymous';
-  faceImg.onload = () => {
+  // Face photo or placeholder
+  if (faceImg && faceImg.complete && faceImg.naturalWidth > 0) {
     ctx.save();
     ctx.beginPath();
     ctx.arc(cx, orbY, orbR * 0.85, 0, Math.PI * 2);
     ctx.clip();
     ctx.drawImage(faceImg, cx - orbR * 0.85, orbY - orbR * 0.85, orbR * 1.7, orbR * 1.7);
     ctx.restore();
-
-    // Orb edge glow
-    const edgeGrad = ctx.createRadialGradient(cx, orbY, orbR * 0.6, cx, orbY, orbR);
-    edgeGrad.addColorStop(0, 'transparent');
-    edgeGrad.addColorStop(1, cfg.glowColor);
-    ctx.beginPath();
-    ctx.arc(cx, orbY, orbR, 0, Math.PI * 2);
-    ctx.fillStyle = edgeGrad;
-    ctx.fill();
-
-    // Top name text
-    const topY = isStory ? height * 0.1 : height * 0.08;
+  } else {
+    // Placeholder — draw emoji/text inside orb
+    ctx.font = `${Math.round(orbR * 0.8)}px serif`;
     ctx.textAlign = 'center';
-    ctx.fillStyle = cfg.orbColor;
-    ctx.font = `bold ${Math.round(width * 0.06)}px 'Cinzel', serif`;
-    ctx.shadowColor = cfg.glowColor;
-    ctx.shadowBlur = 20;
-    ctx.fillText(entry.name.toUpperCase(), cx, topY);
-    ctx.shadowBlur = 0;
+    ctx.textBaseline = 'middle';
+    ctx.fillText(rank.emoji, cx, orbY);
+    ctx.textBaseline = 'alphabetic';
+  }
 
-    // Rank emoji + label
-    const rankY = orbY + orbR + (isStory ? 55 : 45);
-    ctx.font = `bold ${Math.round(width * 0.072)}px serif`;
-    ctx.fillText(rank.emoji, cx, rankY);
-    ctx.font = `bold ${Math.round(width * 0.045)}px 'Cinzel', serif`;
-    ctx.fillStyle = cfg.orbColor;
-    ctx.shadowColor = cfg.glowColor;
-    ctx.shadowBlur = 15;
-    ctx.fillText(rank.label.toUpperCase(), cx, rankY + Math.round(width * 0.058));
-    ctx.shadowBlur = 0;
+  // Edge glow over orb
+  const edgeGrad = ctx.createRadialGradient(cx, orbY, orbR * 0.6, cx, orbY, orbR);
+  edgeGrad.addColorStop(0, 'transparent');
+  edgeGrad.addColorStop(1, cfg.glowColor);
+  ctx.beginPath();
+  ctx.arc(cx, orbY, orbR, 0, Math.PI * 2);
+  ctx.fillStyle = edgeGrad;
+  ctx.fill();
 
-    // Aura score
-    ctx.font = `bold ${Math.round(width * 0.18)}px 'Cinzel', serif`;
-    ctx.fillStyle = cfg.orbColor;
-    ctx.shadowColor = cfg.glowColor;
-    ctx.shadowBlur = 40;
-    ctx.fillText(aura.toString(), cx, rankY + Math.round(width * 0.2));
-    ctx.shadowBlur = 0;
+  // Name
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = cfg.orbColor;
+  ctx.font = `bold ${Math.round(width * 0.06)}px 'Cinzel', serif`;
+  ctx.shadowColor = cfg.glowColor;
+  ctx.shadowBlur = 20;
+  ctx.fillText((entry.name || 'YOU').toUpperCase(), cx, isStory ? height * 0.1 : height * 0.08);
+  ctx.shadowBlur = 0;
 
-    ctx.font = `${Math.round(width * 0.04)}px 'Inter', sans-serif`;
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
-    ctx.fillText('AURA SCORE', cx, rankY + Math.round(width * 0.24));
+  // Rank label + score
+  const rankY = orbY + orbR + (isStory ? 55 : 45);
+  ctx.font = `bold ${Math.round(width * 0.045)}px 'Cinzel', serif`;
+  ctx.fillStyle = cfg.orbColor;
+  ctx.shadowColor = cfg.glowColor;
+  ctx.shadowBlur = 15;
+  ctx.fillText(rank.label.toUpperCase(), cx, rankY);
+  ctx.shadowBlur = 0;
 
-    // Bottom watermark
-    const botY = height - Math.round(height * 0.04);
-    ctx.font = `${Math.round(width * 0.035)}px 'Inter', sans-serif`;
-    ctx.fillStyle = 'rgba(255,255,255,0.3)';
-    ctx.fillText('🔮 Certified by FutureScan AI Oracle — predictyourfuture', cx, botY);
+  ctx.font = `bold ${Math.round(width * 0.18)}px 'Cinzel', serif`;
+  ctx.fillStyle = cfg.orbColor;
+  ctx.shadowColor = cfg.glowColor;
+  ctx.shadowBlur = 40;
+  ctx.fillText(aura.toString(), cx, rankY + Math.round(width * 0.2));
+  ctx.shadowBlur = 0;
 
-    // Holographic shimmer
-    const shimmer = ctx.createLinearGradient(0, 0, width, height);
-    shimmer.addColorStop(0, 'rgba(255,255,255,0)');
-    shimmer.addColorStop(0.4, 'rgba(255,255,255,0.03)');
-    shimmer.addColorStop(0.6, 'rgba(255,255,255,0.06)');
-    shimmer.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = shimmer;
-    ctx.fillRect(0, 0, width, height);
-  };
-  faceImg.src = entry.facePhoto;
+  ctx.font = `${Math.round(width * 0.04)}px 'Inter', sans-serif`;
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.fillText('AURA SCORE', cx, rankY + Math.round(width * 0.25));
+
+  // Watermark
+  ctx.font = `${Math.round(width * 0.03)}px 'Inter', sans-serif`;
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.fillText('🔮 predictyourfuture', cx, height - Math.round(height * 0.03));
 }
 
-export function generateAuraCardBlob(
-  entry: ScanEntry,
-  aura: number,
-  mode: 'post' | 'story'
-): Promise<string> {
+function drawCard(canvas: HTMLCanvasElement, entry: ScanEntry, aura: number, w: number, h: number) {
+  if (entry.facePhoto) {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => renderCard(canvas, entry, aura, w, h, img);
+    img.onerror = () => renderCard(canvas, entry, aura, w, h);
+    img.src = entry.facePhoto;
+  } else {
+    renderCard(canvas, entry, aura, w, h);
+  }
+}
+
+export function generateAuraCardBlob(entry: ScanEntry, aura: number, mode: 'post' | 'story'): Promise<string> {
   return new Promise((resolve) => {
     const canvas = document.createElement('canvas');
     const [w, h] = mode === 'post' ? [1080, 1080] : [1080, 1920];
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      drawAuraCard(canvas, entry, aura, w, h);
-      // Wait for face to paint (onload inside drawAuraCard)
-      setTimeout(() => resolve(canvas.toDataURL('image/png')), 200);
-    };
-    img.onerror = () => {
-      drawAuraCard(canvas, entry, aura, w, h);
-      setTimeout(() => resolve(canvas.toDataURL('image/png')), 200);
-    };
-    img.src = entry.facePhoto;
+    if (entry.facePhoto) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      const done = () => {
+        renderCard(canvas, entry, aura, w, h, img.complete && img.naturalWidth > 0 ? img : undefined);
+        setTimeout(() => resolve(canvas.toDataURL('image/png')), 300);
+      };
+      img.onload = done;
+      img.onerror = done;
+      img.src = entry.facePhoto;
+    } else {
+      renderCard(canvas, entry, aura, w, h);
+      setTimeout(() => resolve(canvas.toDataURL('image/png')), 300);
+    }
   });
 }
 
@@ -177,7 +167,7 @@ const AuraCardGenerator = ({ entry, aura, onClose }: { entry: ScanEntry; aura: n
 
   useEffect(() => {
     if (previewRef.current) {
-      drawAuraCard(previewRef.current, entry, aura, 400, 400);
+      drawCard(previewRef.current, entry, aura, 400, 400);
     }
   }, [entry, aura]);
 
@@ -185,7 +175,7 @@ const AuraCardGenerator = ({ entry, aura, onClose }: { entry: ScanEntry; aura: n
     const url = await generateAuraCardBlob(entry, aura, mode);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `auracard-${entry.name}-${mode}.png`;
+    a.download = `auracard-${entry.name || 'you'}-${mode}.png`;
     a.click();
   };
 
@@ -198,7 +188,7 @@ const AuraCardGenerator = ({ entry, aura, onClose }: { entry: ScanEntry; aura: n
         </div>
         <canvas
           ref={previewRef}
-          className="w-full aspect-square rounded-xl border border-primary/20 mb-4"
+          className="w-full aspect-square rounded-xl border border-primary/20 mb-4 bg-black"
           style={{ imageRendering: 'crisp-edges' }}
         />
         <p className="text-muted-foreground text-xs text-center mb-3">Downloads at full resolution (1080px)</p>
@@ -207,16 +197,16 @@ const AuraCardGenerator = ({ entry, aura, onClose }: { entry: ScanEntry; aura: n
             onClick={() => download('post')}
             className="px-4 py-3 bg-primary text-primary-foreground rounded-xl font-heading text-sm hover:opacity-90 transition-opacity glow-box-gold"
           >
-            📸 Save as Post
+            📸 Save Post
           </button>
           <button
             onClick={() => download('story')}
             className="px-4 py-3 bg-accent text-accent-foreground rounded-xl font-heading text-sm hover:opacity-90 transition-opacity"
           >
-            📱 Save as Story
+            📱 Save Story
           </button>
         </div>
-        <button onClick={onClose} className="w-full text-muted-foreground/50 text-xs hover:text-muted-foreground text-center transition-colors">
+        <button onClick={onClose} className="w-full text-muted-foreground/50 text-xs hover:text-muted-foreground text-center transition-colors py-2">
           Close
         </button>
       </div>
