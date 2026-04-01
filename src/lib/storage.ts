@@ -71,6 +71,17 @@ export async function clearEntries() {
   }
 }
 
+export async function deleteEntry(id: string) {
+  const { error } = await supabase
+    .from('entries')
+    .delete()
+    .eq('id', id);
+    
+  if (error) {
+    console.error("Error deleting entry:", error);
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────
 // 🔥 DYNAMIC ROAST ENGINE — 100+ roasts with smart personalization
 // ─────────────────────────────────────────────────────────────────────

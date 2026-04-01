@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { getEntries, clearEntries, exportToCSV, getHoursRemaining } from "@/lib/storage";
+import { getEntries, clearEntries, deleteEntry, exportToCSV, getHoursRemaining } from "@/lib/storage";
 import type { ScanEntry } from "@/lib/storage";
+import { Trash2, Download, Search, ShieldAlert, Key, Users, Clock, AlertTriangle } from "lucide-react";
 
 const ADMIN_PASSWORD = "000000";
 const SESSION_KEY = "futurescan_admin";
@@ -14,6 +15,7 @@ const Admin = () => {
   const [entries, setEntries] = useState<ScanEntry[]>([]);
   const [search, setSearch] = useState("");
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (sessionStorage.getItem(SESSION_KEY) === "true") {
@@ -22,8 +24,17 @@ const Admin = () => {
   }, []);
 
   useEffect(() => {
-    if (authed) getEntries().then(setEntries);
+    if (authed) {
+      loadData();
+    }
   }, [authed]);
+
+  const loadData = async () => {
+    setIsLoading(true);
+    const data = await getEntries();
+    setEntries(data);
+    setIsLoading(false);
+  };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,9 +49,18 @@ const Admin = () => {
   };
 
   const handleClear = async () => {
+    setIsLoading(true);
     await clearEntries();
-    setEntries([]);
+    await loadData();
     setShowClearConfirm(false);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm("Are you sure you want to delete this prophecy? It will be removed permanently.")) {
+      setIsLoading(true);
+      await deleteEntry(id);
+      await loadData();
+    }
   };
 
   const filtered = entries.filter(e =>
@@ -57,23 +77,53 @@ const Admin = () => {
 
   if (!authed) {
     return (
-      <div className="min-h-screen bg-terminal flex items-center justify-center px-4">
-        <form onSubmit={handleLogin} className={`max-w-sm w-full ${shake ? "animate-shake" : ""}`}>
-          <div className="p-6 border border-terminal-green/30 rounded-lg">
-            <h1 className="font-terminal text-terminal text-xl mb-1">$ predictyourfuture --admin</h1>
-            <p className="font-terminal text-terminal/60 text-sm mb-6">Enter access code:</p>
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-transparent border border-terminal-green/40 rounded font-terminal text-terminal-green focus:outline-none focus:border-terminal-green"
-              placeholder="••••••"
-              autoFocus
-            />
-            <button type="submit" className="w-full mt-4 py-3 border border-terminal-green/40 rounded font-terminal text-terminal-green hover:bg-terminal-green/10 transition-colors">
-              ACCESS
+      <div className="min-h-[100dvh] bg-mystical flex items-center justify-center px-4 relative overflow-hidden">
+        {/* Decorative background glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/20 rounded-full blur-[100px] pointer-events-none" />
+        
+        <form onSubmit={handleLogin} className={`relative z-10 w-full max-w-sm ${shake ? "animate-shake" : ""}`}>
+          <div className="bg-secondary/60 backdrop-blur-xl border border-primary/20 p-8 rounded-2xl shadow-2xl glow-box-gold">
+            <div className="flex justify-center mb-6">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center border border-primary/30">
+                <ShieldAlert className="w-8 h-8 text-primary" />
+              </div>
+            </div>
+            
+            <h1 className="font-heading text-2xl text-center text-primary mb-2">Admin Dashboard</h1>
+            <p className="text-center text-muted-foreground text-sm mb-8">
+              Predict Your Future™ Control Center
+            </p>
+            
+            <div className="relative mb-6">
+              <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <input
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 bg-background/50 border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                placeholder="Enter bypass code"
+                autoFocus
+              />
+            </div>
+            
+            <button 
+              type="submit" 
+              className="w-full py-3 bg-primary text-primary-foreground font-heading rounded-xl hover:opacity-90 transition-opacity glow-box-gold"
+            >
+              Authenticate &rarr;
             </button>
-            {denied && <p className="font-terminal text-red-500 text-sm mt-3 text-center">Access Denied, mortal.</p>}
+            
+            {denied && (
+              <p className="text-red-400 text-sm mt-4 text-center font-bold">
+                Access Denied. Nice try!
+              </p>
+            )}
+            
+            <div className="mt-8 text-center">
+              <Link to="/" className="text-muted-foreground text-xs hover:text-primary transition-colors">
+                &larr; Return to Safety
+              </Link>
+            </div>
           </div>
         </form>
       </div>
@@ -81,109 +131,197 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-terminal text-terminal font-terminal p-4 md:p-8">
-      <h1 className="text-2xl mb-1">$ predictyourfuture --admin --dashboard</h1>
-      <p className="text-terminal/50 text-sm mb-6">[ CLASSIFIED — LEVEL 6 CLEARANCE ]</p>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <div className="p-4 border border-terminal-green/20 rounded">
-          <p className="text-terminal/50 text-xs">TOTAL ROASTED</p>
-          <p className="text-3xl">{entries.length}</p>
+    <div className="min-h-[100dvh] bg-mystical relative text-foreground p-4 md:p-8 overflow-hidden">
+      {/* Background elements */}
+      <div className="fixed top-0 left-1/4 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
+      
+      <div className="relative z-10 max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8 bg-secondary/40 border border-primary/20 backdrop-blur-md p-6 rounded-2xl glow-box-gold">
+          <div>
+            <h1 className="text-3xl font-heading text-primary flex items-center gap-3">
+              <ShieldAlert className="w-8 h-8" />
+              Command Center
+            </h1>
+            <p className="text-muted-foreground text-sm mt-1">Manage all global predictions and user data.</p>
+          </div>
+          
+          <Link to="/" className="px-5 py-2.5 bg-background/50 border border-border rounded-lg text-sm hover:bg-background/80 transition-colors flex items-center gap-2">
+            Exit Dashboard
+          </Link>
         </div>
-        <div className="p-4 border border-terminal-green/20 rounded">
-          <p className="text-terminal/50 text-xs">HOURS REMAINING</p>
-          <p className="text-3xl">{getHoursRemaining()}</p>
-        </div>
-        <div className="p-4 border border-terminal-green/20 rounded">
-          <p className="text-terminal/50 text-xs">TOP CRUSH</p>
-          <p className="text-xl truncate">{mostCommonCrush}</p>
-        </div>
-      </div>
 
-      {/* Controls */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-4">
-        <input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Search by name or crush..."
-          className="flex-1 px-4 py-2 bg-transparent border border-terminal-green/30 rounded font-terminal text-terminal-green placeholder:text-terminal-green/30 focus:outline-none focus:border-terminal-green"
-        />
-        <button
-          onClick={() => exportToCSV(entries)}
-          className="px-4 py-2 border border-terminal-green/40 rounded hover:bg-terminal-green/10 transition-colors"
-        >
-          Export CSV
-        </button>
-        <button
-          onClick={() => setShowClearConfirm(true)}
-          className="px-4 py-2 border border-red-500/40 text-red-400 rounded hover:bg-red-500/10 transition-colors"
-        >
-          Clear All
-        </button>
-      </div>
+        {/* Stats Row */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-gradient-to-br from-secondary/80 to-background/50 border border-border p-6 rounded-2xl shadow-lg relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+              <Users className="w-16 h-16" />
+            </div>
+            <p className="text-muted-foreground text-sm font-semibold tracking-wider mb-2">TOTAL ROASTED</p>
+            <p className="text-5xl font-heading text-primary">{entries.length}</p>
+          </div>
+          
+          <div className="bg-gradient-to-br from-secondary/80 to-background/50 border border-border p-6 rounded-2xl shadow-lg relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+              <Clock className="w-16 h-16" />
+            </div>
+            <p className="text-muted-foreground text-sm font-semibold tracking-wider mb-2">HOURS REMAINING (CLIENT)</p>
+            <p className="text-5xl font-heading text-white">{getHoursRemaining()}</p>
+          </div>
+          
+          <div className="bg-gradient-to-br from-secondary/80 to-background/50 border border-border p-6 rounded-2xl shadow-lg relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+              <AlertTriangle className="w-16 h-16" />
+            </div>
+            <p className="text-muted-foreground text-sm font-semibold tracking-wider mb-2">TOP CRUSH TARGET</p>
+            <p className="text-3xl font-heading text-accent truncate pt-2">{mostCommonCrush}</p>
+          </div>
+        </div>
 
-      {showClearConfirm && (
-        <div className="mb-4 p-3 border border-red-500/30 rounded">
-          <p className="text-red-400 text-sm mb-2">Confirm: Delete ALL scan data?</p>
-          <div className="flex gap-2">
-            <button onClick={handleClear} className="px-3 py-1 border border-red-500 text-red-400 rounded text-sm hover:bg-red-500/10">
-              Yes, purge
+        {/* Actions & Filters */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+          <div className="relative w-full sm:max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search by name or crush..."
+              className="w-full pl-10 pr-4 py-3 bg-secondary/50 backdrop-blur-sm border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+            />
+          </div>
+          
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            {isLoading && (
+               <div className="text-primary text-sm flex items-center gap-2 mr-2">
+                 <div className="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                 Syncing...
+               </div>
+            )}
+            <button
+              onClick={() => exportToCSV(entries)}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 bg-secondary/80 border border-border rounded-xl hover:bg-secondary transition-colors text-sm font-medium"
+            >
+              <Download className="w-4 h-4" />
+              Export CSV
             </button>
-            <button onClick={() => setShowClearConfirm(false)} className="px-3 py-1 border border-terminal-green/30 rounded text-sm hover:bg-terminal-green/10">
-              Cancel
+            <button
+              onClick={() => setShowClearConfirm(true)}
+              className="flex-1 sm:flex-none px-5 py-3 border border-red-500/50 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500/20 transition-colors text-sm font-medium"
+            >
+              Nuke Data
             </button>
           </div>
         </div>
-      )}
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm border-collapse">
-          <thead>
-            <tr className="border-b border-terminal-green/20">
-              <th className="py-2 px-2 text-left text-terminal/50">#</th>
-              <th className="py-2 px-2 text-left text-terminal/50">Photo</th>
-              <th className="py-2 px-2 text-left text-terminal/50">Name</th>
-              <th className="py-2 px-2 text-left text-terminal/50">Age</th>
-              <th className="py-2 px-2 text-left text-terminal/50">C.Photo</th>
-              <th className="py-2 px-2 text-left text-terminal/50">Crush</th>
-              <th className="py-2 px-2 text-left text-terminal/50">C.Age</th>
-              <th className="py-2 px-2 text-left text-terminal/50">Roast</th>
-              <th className="py-2 px-2 text-left text-terminal/50">Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((e, i) => (
-              <tr key={e.id} className="border-b border-terminal-green/10 hover:bg-terminal-green/5">
-                <td className="py-2 px-2">{i + 1}</td>
-                <td className="py-2 px-2">
-                  <img src={e.facePhoto} alt="" className="w-8 h-8 rounded object-cover" loading="lazy" />
-                </td>
-                <td className="py-2 px-2">{e.name}</td>
-                <td className="py-2 px-2">{e.age}</td>
-                <td className="py-2 px-2">
-                  {e.crushPhoto ? (
-                    <img src={e.crushPhoto} alt="" className="w-8 h-8 rounded object-cover" loading="lazy" />
-                  ) : (
-                    <span className="text-terminal/30 text-xs">N/A</span>
-                  )}
-                </td>
-                <td className="py-2 px-2">{e.crushName}</td>
-                <td className="py-2 px-2">{e.crushAge}</td>
-                <td className="py-2 px-2 max-w-xs truncate">{e.roastText}</td>
-                <td className="py-2 px-2 whitespace-nowrap">{new Date(e.timestamp).toLocaleTimeString()}</td>
-              </tr>
-            ))}
-            {filtered.length === 0 && (
-              <tr><td colSpan={9} className="py-8 text-center text-terminal/30">No data found.</td></tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+        {showClearConfirm && (
+          <div className="mb-6 p-6 border border-red-500/50 bg-red-500/10 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 backdrop-blur-md">
+            <div>
+              <p className="text-red-400 font-bold mb-1 flex items-center gap-2">
+                <ShieldAlert className="w-5 h-5" /> 
+                WARNING: DESTRUCTIVE ACTION
+              </p>
+              <p className="text-red-400/80 text-sm">Are you absolutely sure you want to permanently delete all scan records globally? This cannot be undone.</p>
+            </div>
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <button 
+                onClick={handleClear} 
+                className="flex-1 sm:flex-none px-6 py-2 bg-red-500 text-white rounded-lg text-sm font-bold shadow-lg shadow-red-500/20 hover:bg-red-600 transition-colors"
+                disabled={isLoading}
+              >
+                Yes, Purge Everything
+              </button>
+              <button 
+                onClick={() => setShowClearConfirm(false)} 
+                className="flex-1 sm:flex-none px-6 py-2 bg-background/50 border border-border rounded-lg text-sm hover:bg-background/80 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
 
-      <div className="mt-8 text-center">
-        <Link to="/" className="text-terminal/40 hover:text-terminal text-sm">← Back to main</Link>
+        {/* Data Table */}
+        <div className="bg-secondary/40 backdrop-blur-md border border-border rounded-2xl overflow-hidden shadow-xl">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="bg-background/50 text-muted-foreground border-b border-border">
+                <tr>
+                  <th className="py-4 px-4 font-semibold">User</th>
+                  <th className="py-4 px-4 font-semibold">Target Crush</th>
+                  <th className="py-4 px-4 font-semibold max-w-xs">AI Prophecy Overview</th>
+                  <th className="py-4 px-4 font-semibold">Timestamp</th>
+                  <th className="py-4 px-4 font-semibold text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {filtered.map((e) => (
+                  <tr key={e.id} className="hover:bg-background/40 transition-colors group">
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-3">
+                        <img src={e.facePhoto} alt="" className="w-10 h-10 rounded-full object-cover border border-primary/20" loading="lazy" />
+                        <div>
+                          <p className="font-semibold text-foreground">{e.name}</p>
+                          <p className="text-muted-foreground text-xs">Age {e.age}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4">
+                      {e.crushPhoto ? (
+                        <div className="flex items-center gap-3">
+                          <img src={e.crushPhoto} alt="" className="w-10 h-10 rounded-full object-cover border border-accent/20" loading="lazy" />
+                          <div>
+                            <p className="font-medium text-foreground">{e.crushName}</p>
+                            <p className="text-muted-foreground text-xs">Age {e.crushAge}</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div>
+                          <p className="font-medium text-foreground">{e.crushName}</p>
+                          <p className="text-muted-foreground text-xs">Age {e.crushAge}</p>
+                        </div>
+                      )}
+                    </td>
+                    <td className="py-3 px-4 max-w-xs xl:max-w-md">
+                      <p className="truncate text-muted-foreground group-hover:text-foreground transition-colors" title={e.roastText}>
+                        {e.roastText}
+                      </p>
+                    </td>
+                    <td className="py-3 px-4 text-muted-foreground whitespace-nowrap text-xs">
+                      {new Date(e.timestamp).toLocaleString()}
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <button 
+                        onClick={() => handleDelete(e.id)}
+                        disabled={isLoading}
+                        className="p-2 text-muted-foreground hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors inline-block"
+                        title="Delete record"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                
+                {filtered.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="py-16 text-center text-muted-foreground">
+                      {isLoading ? (
+                        <div className="flex flex-col items-center justify-center">
+                          <div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin mb-4" />
+                          Syncing the timelines...
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center">
+                          <Search className="w-12 h-12 text-muted-foreground/30 mb-4" />
+                          <p>No prophecies discovered across any timelines.</p>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   );
