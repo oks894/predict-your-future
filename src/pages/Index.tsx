@@ -37,7 +37,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-mystical relative overflow-hidden">
       <StarField />
-      <div className="relative z-10 max-w-4xl mx-auto px-4 py-12">
+      <div className="relative z-10 max-w-4xl mx-auto px-4 py-6 md:py-12">
         {/* Challenge Banner */}
         {challenge && (
           <div className="mb-8 p-4 rounded-lg border border-primary/30 bg-secondary/50 text-center glow-box-gold">
