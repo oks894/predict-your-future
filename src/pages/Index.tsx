@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
-import { getEntries, setFirstUseTimestamp, isExpired, getTier, addAura } from "@/lib/storage";
+import { getEntries, setFirstUseTimestamp, isExpired, getTier, addAura, getAdminUpiId } from "@/lib/storage";
 import type { ScanEntry } from "@/lib/storage";
 import StarField from "@/components/StarField";
 import ExpiryGate from "@/components/ExpiryGate";
@@ -185,9 +185,22 @@ const Index = () => {
                   </p>
                   <div className="p-4 bg-background/50 rounded-xl mb-6 border border-border">
                     <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider font-bold">Scan UPI QR to Pay ₹1</p>
-                    <div className="w-32 h-32 bg-white mx-auto flex items-center justify-center rounded-lg p-2 shadow-inner">
-                      <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=itsnextgenfounder@okicici&pn=PredictYourFuture&am=1.00&cu=INR`} alt="UPI QR" className="w-full h-full object-contain" />
-                    </div>
+                    {getAdminUpiId() ? (
+                      <div className="w-32 h-32 bg-white mx-auto flex items-center justify-center rounded-lg p-2 shadow-inner">
+                        <img
+                          src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`upi://pay?pa=${getAdminUpiId()}&pn=PredictYourFuture&am=1.00&cu=INR`)}`}
+                          alt="UPI QR"
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                    ) : (
+                      <p className="text-center text-muted-foreground italic text-sm py-6">
+                        UPI not configured — DM admin on Instagram to get removed.
+                      </p>
+                    )}
+                    {getAdminUpiId() && (
+                      <p className="text-center text-muted-foreground text-xs mt-2 font-mono">{getAdminUpiId()}</p>
+                    )}
                   </div>
                   <div className="flex gap-3">
                     <button 
