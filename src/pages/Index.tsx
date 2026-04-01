@@ -144,9 +144,21 @@ const Index = () => {
         </div>
 
         {/* Footer */}
-        <footer className="text-center text-muted-foreground text-sm pb-8">
-          <p>FutureScan AI™ — Not real. Obviously. 🤡</p>
-          <a href="#admin" className="text-muted-foreground/50 hover:text-muted-foreground text-xs mt-1 inline-block">
+        <footer className="text-center text-muted-foreground text-sm pb-8 space-y-2">
+          <p>April Fools' Idiot™ — Not real. Obviously. 🤡</p>
+          <p className="text-xs">
+            Made by{" "}
+            <a
+              href="https://instagram.com/itsnextgenfounder"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              @itsnextgenfounder
+            </a>
+            {" "}— Follow on Instagram ❤️
+          </p>
+          <a href="/admin" className="text-muted-foreground/50 hover:text-muted-foreground text-xs inline-block">
             Admin
           </a>
         </footer>
