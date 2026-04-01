@@ -81,7 +81,7 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen bg-terminal text-terminal font-terminal p-4 md:p-8">
+    <div className="min-h-[100dvh] bg-terminal text-terminal font-terminal p-4 md:p-8">
       <h1 className="text-2xl mb-1">$ futurescan --admin --dashboard</h1>
       <p className="text-terminal/50 text-sm mb-6">[ CLASSIFIED — LEVEL 6 CLEARANCE ]</p>
 

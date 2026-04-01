@@ -170,11 +170,11 @@ const Scan = () => {
   const appUrl = window.location.origin;
 
   return (
-    <div className="min-h-screen bg-mystical relative overflow-hidden">
+    <div className="min-h-[100dvh] bg-mystical relative overflow-hidden">
       <StarField />
       <canvas ref={canvasRef} className="hidden" />
 
-      <div className="relative z-10 max-w-lg mx-auto px-4 py-12">
+      <div className="relative z-10 max-w-lg mx-auto px-4 py-8 md:py-12">
         {/* STEP 1: Capture */}
         {step === "capture" && (
           <div className="text-center">

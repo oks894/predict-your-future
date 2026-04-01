@@ -35,7 +35,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-mystical relative overflow-hidden">
+    <div className="min-h-[100dvh] bg-mystical relative overflow-hidden">
       <StarField />
       <div className="relative z-10 max-w-4xl mx-auto px-4 py-6 md:py-12">
         {/* Challenge Banner */}
@@ -118,7 +118,7 @@ const Index = () => {
           {/* Challenge Link */}
           <div className="max-w-md mx-auto mt-6">
             <p className="text-muted-foreground text-sm text-center mb-2">Challenge a friend:</p>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2 mt-2">
               <input
                 value={friendName}
                 onChange={e => setFriendName(e.target.value)}
