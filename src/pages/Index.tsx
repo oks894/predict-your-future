@@ -1,16 +1,157 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { getEntries, setFirstUseTimestamp, isExpired } from "@/lib/storage";
+import type { ScanEntry } from "@/lib/storage";
+import StarField from "@/components/StarField";
+import ExpiryGate from "@/components/ExpiryGate";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const Index = () => {
+  const [searchParams] = useSearchParams();
+  const challenge = searchParams.get("challenge");
+  const [entries, setEntries] = useState<ScanEntry[]>([]);
+  const [shareLink, setShareLink] = useState("");
+  const [friendName, setFriendName] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    setFirstUseTimestamp();
+    setEntries(getEntries());
+  }, []);
+
+  if (isExpired()) return <ExpiryGate />;
+
+  const appUrl = window.location.origin;
+  const whatsappText = encodeURIComponent(`I just found out my future 😱 Try this 👇 ${appUrl}`);
+
+  const generateChallengeLink = () => {
+    if (!friendName.trim()) return;
+    setShareLink(`${appUrl}?challenge=${encodeURIComponent(friendName.trim())}`);
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
+    <div className="min-h-screen bg-mystical relative overflow-hidden">
+      <StarField />
+      <div className="relative z-10 max-w-4xl mx-auto px-4 py-12">
+        {/* Challenge Banner */}
+        {challenge && (
+          <div className="mb-8 p-4 rounded-lg border border-primary/30 bg-secondary/50 text-center glow-box-gold">
+            <p className="text-primary font-heading text-lg">
+              {challenge}, your future was predicted but they're hiding it. Scan yourself to unlock it 👀
+            </p>
+          </div>
+        )}
+
+        {/* Hero */}
+        <div className="text-center mb-16">
+          <h1 className="font-heading text-4xl md:text-6xl text-primary glow-gold mb-4">
+            FutureScan AI
+          </h1>
+          <p className="text-xl md:text-2xl text-foreground/80 font-heading">
+            See Your Destiny
+          </p>
+          <p className="text-muted-foreground mt-2">🔮 AI-powered face analysis • 14 billion timelines scanned</p>
+
+          <a
+            href="/scan"
+            className="inline-block mt-8 px-8 py-4 bg-primary text-primary-foreground font-heading text-lg rounded-lg glow-box-gold hover:scale-105 transition-transform"
+          >
+            Scan My Future
+          </a>
+        </div>
+
+        {/* Hall of Shame */}
+        {entries.length > 0 && (
+          <div className="mb-16">
+            <h2 className="font-heading text-2xl text-primary glow-gold text-center mb-6">
+              🏆 Hall of Shame
+            </h2>
+            <div className="grid gap-3 max-h-96 overflow-y-auto pr-2">
+              {entries.map((e, i) => (
+                <div key={e.id} className="flex items-center gap-4 p-3 rounded-lg bg-secondary/50 border border-border">
+                  <span className="text-primary font-heading text-sm">#{i + 1}</span>
+                  <img
+                    src={e.facePhoto}
+                    alt={e.name}
+                    className="w-10 h-10 rounded-full object-cover border border-primary/30"
+                    loading="lazy"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-foreground font-medium truncate">{e.name}, {e.age}</p>
+                    <p className="text-muted-foreground text-sm truncate">{e.roastText}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Share Section */}
+        <div className="mb-16 space-y-4">
+          <h2 className="font-heading text-2xl text-primary glow-gold text-center mb-4">
+            📤 Share the Prophecy
+          </h2>
+
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <a
+              href={`https://wa.me/?text=${whatsappText}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-3 bg-green-600 text-foreground rounded-lg text-center hover:bg-green-700 transition-colors"
+            >
+              Share on WhatsApp
+            </a>
+            <button
+              onClick={() => copyToClipboard(`I just found out my future 😱 Try this 👇 ${appUrl}`)}
+              className="px-6 py-3 bg-secondary text-foreground rounded-lg hover:bg-secondary/80 transition-colors"
+            >
+              {copied ? "Copied! ✅" : "Copy for Instagram"}
+            </button>
+          </div>
+
+          {/* Challenge Link */}
+          <div className="max-w-md mx-auto mt-6">
+            <p className="text-muted-foreground text-sm text-center mb-2">Challenge a friend:</p>
+            <div className="flex gap-2">
+              <input
+                value={friendName}
+                onChange={e => setFriendName(e.target.value)}
+                placeholder="Friend's name"
+                className="flex-1 px-4 py-2 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+              <button
+                onClick={generateChallengeLink}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
+              >
+                Generate
+              </button>
+            </div>
+            {shareLink && (
+              <div className="mt-2 p-2 bg-muted rounded text-sm break-all">
+                <span className="text-muted-foreground">{shareLink}</span>
+                <button onClick={() => copyToClipboard(shareLink)} className="ml-2 text-primary hover:underline text-xs">
+                  Copy
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <footer className="text-center text-muted-foreground text-sm pb-8">
+          <p>FutureScan AI™ — Not real. Obviously. 🤡</p>
+          <a href="#admin" className="text-muted-foreground/50 hover:text-muted-foreground text-xs mt-1 inline-block">
+            Admin
+          </a>
+        </footer>
+      </div>
     </div>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
