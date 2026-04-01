@@ -18,10 +18,10 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <AuraHeader />
       <Toaster />
       <Sonner />
       <HashRouter>
+        <AuraHeader />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/scan" element={<Scan />} />
