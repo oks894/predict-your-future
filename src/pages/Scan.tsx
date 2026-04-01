@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import html2canvas from "html2canvas";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { addEntry, generateRoast, isExpired } from "@/lib/storage";
 import type { ScanEntry } from "@/lib/storage";
 import StarField from "@/components/StarField";
@@ -15,7 +15,7 @@ const LOADING_MESSAGES = [
   "Scanning alternate timelines...",
 ];
 
-type Step = "capture" | "form" | "result";
+type Step = "capture" | "form" | "loading" | "result";
 
 const Scan = () => {
   const navigate = useNavigate();
@@ -28,6 +28,8 @@ const Scan = () => {
   const [formData, setFormData] = useState({ name: "", age: "", crushName: "", crushAge: "" });
   const [result, setResult] = useState<ScanEntry | null>(null);
   const [copied, setCopied] = useState(false);
+  const [cameraError, setCameraError] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
 
   // Start webcam
   useEffect(() => {
@@ -36,9 +38,13 @@ const Scan = () => {
     const start = async () => {
       try {
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-        if (videoRef.current) videoRef.current.srcObject = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
       } catch (e) {
         console.error("Camera error:", e);
+        setCameraError(true);
+        // Even if camera fails, still move forward after countdown
       }
     };
     start();
@@ -59,17 +65,34 @@ const Scan = () => {
   const capturePhoto = useCallback(() => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    if (!video || !canvas) return;
+    if (!canvas) return;
+
     canvas.width = 320;
     canvas.height = 240;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    ctx.drawImage(video, 0, 0, 320, 240);
-    const dataUrl = canvas.toDataURL("image/jpeg", 0.6);
-    setPhoto(dataUrl);
-    // Stop video
-    const stream = video.srcObject as MediaStream;
-    stream?.getTracks().forEach(t => t.stop());
+
+    if (video && video.srcObject) {
+      ctx.drawImage(video, 0, 0, 320, 240);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.6);
+      setPhoto(dataUrl);
+      // Stop video
+      const stream = video.srcObject as MediaStream;
+      stream?.getTracks().forEach(t => t.stop());
+    } else {
+      // Camera failed — generate a placeholder "scan" image
+      ctx.fillStyle = "#1a0a2e";
+      ctx.fillRect(0, 0, 320, 240);
+      ctx.fillStyle = "#d4af37";
+      ctx.font = "40px serif";
+      ctx.textAlign = "center";
+      ctx.fillText("🔮", 160, 130);
+      ctx.font = "14px sans-serif";
+      ctx.fillStyle = "#888";
+      ctx.fillText("Face scan captured", 160, 170);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.6);
+      setPhoto(dataUrl);
+    }
     setStep("form");
   }, []);
 
@@ -78,6 +101,26 @@ const Scan = () => {
     if (step !== "form") return;
     const interval = setInterval(() => setLoadingMsg(m => (m + 1) % LOADING_MESSAGES.length), 2000);
     return () => clearInterval(interval);
+  }, [step]);
+
+  // Fake loading screen after form submit
+  useEffect(() => {
+    if (step !== "loading") return;
+    const msgInterval = setInterval(() => setLoadingMsg(m => (m + 1) % LOADING_MESSAGES.length), 800);
+    const progressInterval = setInterval(() => {
+      setLoadingProgress(p => {
+        if (p >= 100) return 100;
+        return p + Math.random() * 15 + 5;
+      });
+    }, 400);
+    const timeout = setTimeout(() => {
+      setStep("result");
+    }, 4000);
+    return () => {
+      clearInterval(msgInterval);
+      clearInterval(progressInterval);
+      clearTimeout(timeout);
+    };
   }, [step]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -99,7 +142,9 @@ const Scan = () => {
     };
     addEntry(entry);
     setResult(entry);
-    setStep("result");
+    setLoadingProgress(0);
+    setLoadingMsg(0);
+    setStep("loading");
   };
 
   const downloadCardAsImage = async () => {
@@ -112,7 +157,7 @@ const Scan = () => {
         useCORS: true,
       });
       const link = document.createElement("a");
-      link.download = `april-fools-${formData.name || "roast"}.png`;
+      link.download = `futurescan-${formData.name || "prophecy"}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
     } catch (err) {
@@ -135,7 +180,14 @@ const Scan = () => {
           <div className="text-center">
             <h2 className="font-heading text-2xl text-primary glow-gold mb-6">Scanning Your Face...</h2>
             <div className="relative mx-auto w-72 h-72 rounded-full overflow-hidden border-4 border-primary/50 glow-box-gold">
-              <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+              {cameraError ? (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-secondary/50">
+                  <p className="text-4xl mb-2">🔮</p>
+                  <p className="text-muted-foreground text-sm px-4">Scanning via neural link...</p>
+                </div>
+              ) : (
+                <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+              )}
               {/* Scan overlay */}
               <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute inset-0 border-4 border-accent/30 rounded-full animate-pulse-glow" />
@@ -151,8 +203,8 @@ const Scan = () => {
         {step === "form" && (
           <div>
             <div className="text-center mb-6">
-              <p className="text-green-400 text-lg mb-2">Face detected ✅</p>
-              <p className="text-muted-foreground italic">Extracting destiny markers...</p>
+              <p className="text-green-400 text-lg mb-2">Face scan complete ✅</p>
+              <p className="text-muted-foreground italic">We need a few details to cross-reference your timeline...</p>
             </div>
 
             {/* Fake loading */}
@@ -222,10 +274,30 @@ const Scan = () => {
           </div>
         )}
 
-        {/* STEP 3: Result */}
+        {/* STEP 3: Fake "Processing" loading screen */}
+        {step === "loading" && (
+          <div className="text-center py-12">
+            <div className="w-24 h-24 mx-auto mb-8 rounded-full border-4 border-primary/30 flex items-center justify-center glow-box-gold">
+              <span className="text-4xl animate-pulse">🔮</span>
+            </div>
+            <h2 className="font-heading text-2xl text-primary glow-gold mb-4">Processing Your Destiny...</h2>
+            <div className="max-w-xs mx-auto mb-4">
+              <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-300"
+                  style={{ width: `${Math.min(loadingProgress, 100)}%` }}
+                />
+              </div>
+              <p className="text-muted-foreground text-xs mt-2">{Math.min(Math.round(loadingProgress), 100)}% complete</p>
+            </div>
+            <p className="text-accent text-sm italic">{LOADING_MESSAGES[loadingMsg]}</p>
+          </div>
+        )}
+
+        {/* STEP 4: Result — THIS is where the prank is revealed */}
         {step === "result" && result && (
           <div className="text-center">
-            <h2 className="font-heading text-2xl text-primary glow-gold mb-6">Your Prophecy</h2>
+            <h2 className="font-heading text-2xl text-primary glow-gold mb-6">Your Prophecy Has Arrived</h2>
 
             {/* Prophecy Card — also used for image export */}
             <div
@@ -242,7 +314,7 @@ const Scan = () => {
               <div className="p-4 rounded-lg bg-background/50 border border-border">
                 <p className="text-foreground text-lg italic">"{result.roastText}"</p>
               </div>
-              <p className="text-muted-foreground text-xs mt-3">— April Fools' Idiot™</p>
+              <p className="text-muted-foreground text-xs mt-3">— FutureScan AI™ 🤡 Happy April Fools'</p>
               <p className="text-muted-foreground text-xs">@itsnextgenfounder</p>
             </div>
 
@@ -274,12 +346,12 @@ const Scan = () => {
               </button>
             </div>
 
-            <button
-              onClick={() => navigate("/")}
-              className="mt-6 text-primary hover:underline font-heading"
+            <Link
+              to="/"
+              className="inline-block mt-6 text-primary hover:underline font-heading"
             >
-              ← Back to Hall of Shame
-            </button>
+              ← Back to Home
+            </Link>
           </div>
         )}
       </div>

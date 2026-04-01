@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { getEntries, setFirstUseTimestamp, isExpired } from "@/lib/storage";
 import type { ScanEntry } from "@/lib/storage";
 import StarField from "@/components/StarField";
@@ -21,7 +21,7 @@ const Index = () => {
   if (isExpired()) return <ExpiryGate />;
 
   const appUrl = window.location.origin;
-  const whatsappText = encodeURIComponent(`I just found out my future 😱 Try this 👇 ${appUrl}`);
+  const whatsappText = encodeURIComponent(`This AI just predicted my future and I'm SHOOK 😱🔮 Try it yourself 👇 ${appUrl}`);
 
   const generateChallengeLink = () => {
     if (!friendName.trim()) return;
@@ -47,30 +47,30 @@ const Index = () => {
           </div>
         )}
 
-        {/* Hero */}
+        {/* Hero — looks legit, no prank reveal */}
         <div className="text-center mb-10 md:mb-16">
           <h1 className="font-heading text-3xl md:text-6xl text-primary glow-gold mb-2 md:mb-4">
-            April Fools' Idiot
+            FutureScan AI
           </h1>
           <p className="text-lg md:text-2xl text-foreground/80 font-heading">
-            🤡 Happy April Fools' Day 🤡
+            🔮 See Your Destiny
           </p>
-          <p className="text-sm md:text-base text-accent font-heading mt-1">You really thought AI could predict your future?</p>
-          <p className="text-muted-foreground mt-2 text-sm">🔮 AI-powered face analysis • 14 billion timelines scanned</p>
+          <p className="text-sm md:text-base text-accent font-heading mt-1">Advanced AI face analysis powered by neural networks</p>
+          <p className="text-muted-foreground mt-2 text-sm">🧬 AI-powered face analysis • 14 billion timelines scanned</p>
 
-          <a
-            href="/scan"
+          <Link
+            to="/scan"
             className="inline-block mt-8 px-8 py-4 bg-primary text-primary-foreground font-heading text-lg rounded-lg glow-box-gold hover:scale-105 transition-transform"
           >
             Scan My Future
-          </a>
+          </Link>
         </div>
 
-        {/* Hall of Shame */}
+        {/* Hall of Prophecies (not "Shame" — keep it disguised) */}
         {entries.length > 0 && (
           <div className="mb-16">
             <h2 className="font-heading text-2xl text-primary glow-gold text-center mb-6">
-              🏆 Hall of Shame
+              🏆 Recent Prophecies
             </h2>
             <div className="grid gap-3 max-h-96 overflow-y-auto pr-2">
               {entries.map((e, i) => (
@@ -95,7 +95,7 @@ const Index = () => {
         {/* Share Section */}
         <div className="mb-16 space-y-4">
           <h2 className="font-heading text-2xl text-primary glow-gold text-center mb-4">
-            📤 Share the Prophecy
+            📤 Share Your Prophecy
           </h2>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -108,7 +108,7 @@ const Index = () => {
               Share on WhatsApp
             </a>
             <button
-              onClick={() => copyToClipboard(`I just found out my future 😱 Try this 👇 ${appUrl}`)}
+              onClick={() => copyToClipboard(`This AI just predicted my future and I'm SHOOK 😱🔮 Try it yourself 👇 ${appUrl}`)}
               className="px-6 py-3 bg-secondary text-foreground rounded-lg hover:bg-secondary/80 transition-colors"
             >
               {copied ? "Copied! ✅" : "Copy for Instagram"}
@@ -145,7 +145,7 @@ const Index = () => {
 
         {/* Footer */}
         <footer className="text-center text-muted-foreground text-sm pb-8 space-y-2">
-          <p>April Fools' Idiot™ — Not real. Obviously. 🤡</p>
+          <p>FutureScan AI™ — Powered by Advanced Neural Networks 🧠</p>
           <p className="text-xs">
             Made by{" "}
             <a
@@ -158,9 +158,9 @@ const Index = () => {
             </a>
             {" "}— Follow on Instagram ❤️
           </p>
-          <a href="/admin" className="text-muted-foreground/50 hover:text-muted-foreground text-xs inline-block">
+          <Link to="/admin" className="text-muted-foreground/50 hover:text-muted-foreground text-xs inline-block">
             Admin
-          </a>
+          </Link>
         </footer>
       </div>
     </div>

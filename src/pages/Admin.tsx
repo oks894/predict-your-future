@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { getEntries, clearEntries, exportToCSV, getHoursRemaining } from "@/lib/storage";
 import type { ScanEntry } from "@/lib/storage";
 
@@ -174,7 +175,7 @@ const Admin = () => {
       </div>
 
       <div className="mt-8 text-center">
-        <a href="/" className="text-terminal/40 hover:text-terminal text-sm">← Back to main</a>
+        <Link to="/" className="text-terminal/40 hover:text-terminal text-sm">← Back to main</Link>
       </div>
     </div>
   );
