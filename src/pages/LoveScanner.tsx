@@ -29,7 +29,7 @@ const LoveScanner = () => {
   const [crushPhoto, setCrushPhoto] = useState<string>("");
   const [countdown, setCountdown] = useState(2);
   const [loadingMsg, setLoadingMsg] = useState(0);
-  const [formData, setFormData] = useState({ name: "", age: "", crushName: "", crushAge: "" });
+  const [formData, setFormData] = useState({ name: "", age: "18", crushName: "", crushAge: "18" });
   const [result, setResult] = useState<ScanEntry | null>(null);
   const [copied, setCopied] = useState(false);
   const [cameraError, setCameraError] = useState(false);
@@ -325,67 +325,53 @@ const LoveScanner = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="text-foreground text-sm mb-1 block">Your name</label>
+              <div className="mb-4">
+                <label className="text-foreground text-sm mb-1 block text-left">Your Name</label>
                 <input
                   value={formData.name}
                   onChange={e => setFormData(f => ({ ...f, name: e.target.value }))}
                   required
-                  className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-center"
                   placeholder="Enter your name"
                 />
               </div>
               <div>
-                <label className="text-foreground text-sm mb-1 block">Your age</label>
-                <input
-                  type="number"
-                  value={formData.age}
-                  onChange={e => setFormData(f => ({ ...f, age: e.target.value }))}
-                  required
-                  min={1}
-                  max={120}
-                  className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  placeholder="Age"
-                />
-              </div>
-              <div>
-                <label className="text-foreground text-sm mb-1 block">Your crush's name</label>
+                <label className="text-foreground text-sm mb-1 block text-left">Your Crush's Name</label>
                 <input
                   value={formData.crushName}
                   onChange={e => setFormData(f => ({ ...f, crushName: e.target.value }))}
                   required
-                  className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  placeholder="Who's the lucky one?"
+                  className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-center"
+                  placeholder="Who's the victim?"
                 />
               </div>
-              <div>
-                <label className="text-foreground text-sm mb-1 block">Your crush's age</label>
-                <input
-                  type="number"
-                  value={formData.crushAge}
-                  onChange={e => setFormData(f => ({ ...f, crushAge: e.target.value }))}
-                  required
-                  min={1}
-                  max={120}
-                  className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  placeholder="Their age"
-                />
-              </div>
-              <div>
-                <label className="text-foreground text-sm mb-1 block">Upload their pic (Required for Love Calculator 💔)</label>
+              
+              <div className="mt-8 border-2 border-dashed border-accent/50 rounded-xl p-6 text-center hover:bg-accent/10 transition-colors relative glow-box-gold cursor-pointer group">
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleFileUpload}
-                  className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                 />
-                {crushPhoto && <p className="text-green-400 text-xs mt-1">Photo loaded ✅</p>}
+                {crushPhoto ? (
+                  <div className="flex flex-col items-center">
+                     <img src={crushPhoto} alt="Crush" className="w-24 h-24 object-cover rounded-full border-4 border-accent shadow-[0_0_15px_rgba(255,0,100,0.5)] mb-3" />
+                     <p className="text-accent font-bold">Target Locked 🎯</p>
+                     <p className="text-xs text-muted-foreground mt-1">Tap to change victim</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center pointer-events-none">
+                     <span className="text-5xl mb-3 group-hover:scale-110 transition-transform">📸</span>
+                     <p className="text-foreground font-heading text-lg">Upload Their Photo</p>
+                     <p className="text-xs text-muted-foreground mt-1">Required for accurate AI targeting 💥</p>
+                  </div>
+                )}
               </div>
               <button
                 type="submit"
-                className="w-full py-4 bg-primary text-primary-foreground font-heading text-lg rounded-lg glow-box-gold hover:scale-[1.02] transition-transform"
+                className="w-full mt-6 py-4 bg-accent text-accent-foreground font-heading text-lg rounded-lg shadow-[0_0_15px_rgba(255,0,100,0.5)] hover:scale-[1.02] transition-transform uppercase tracking-wider"
               >
-                Calculate Love Destiny 💔
+                Initiate Brutality 💣
               </button>
             </form>
           </div>
