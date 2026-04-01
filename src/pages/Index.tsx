@@ -37,7 +37,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-mystical relative overflow-hidden">
       <StarField />
-      <div className="relative z-10 max-w-4xl mx-auto px-4 py-12">
+      <div className="relative z-10 max-w-4xl mx-auto px-4 py-6 md:py-12">
         {/* Challenge Banner */}
         {challenge && (
           <div className="mb-8 p-4 rounded-lg border border-primary/30 bg-secondary/50 text-center glow-box-gold">
@@ -48,14 +48,15 @@ const Index = () => {
         )}
 
         {/* Hero */}
-        <div className="text-center mb-16">
-          <h1 className="font-heading text-4xl md:text-6xl text-primary glow-gold mb-4">
-            FutureScan AI
+        <div className="text-center mb-10 md:mb-16">
+          <h1 className="font-heading text-3xl md:text-6xl text-primary glow-gold mb-2 md:mb-4">
+            April Fools' Idiot
           </h1>
-          <p className="text-xl md:text-2xl text-foreground/80 font-heading">
-            See Your Destiny
+          <p className="text-lg md:text-2xl text-foreground/80 font-heading">
+            🤡 Happy April Fools' Day 🤡
           </p>
-          <p className="text-muted-foreground mt-2">🔮 AI-powered face analysis • 14 billion timelines scanned</p>
+          <p className="text-sm md:text-base text-accent font-heading mt-1">You really thought AI could predict your future?</p>
+          <p className="text-muted-foreground mt-2 text-sm">🔮 AI-powered face analysis • 14 billion timelines scanned</p>
 
           <a
             href="/scan"
@@ -143,9 +144,21 @@ const Index = () => {
         </div>
 
         {/* Footer */}
-        <footer className="text-center text-muted-foreground text-sm pb-8">
-          <p>FutureScan AI™ — Not real. Obviously. 🤡</p>
-          <a href="#admin" className="text-muted-foreground/50 hover:text-muted-foreground text-xs mt-1 inline-block">
+        <footer className="text-center text-muted-foreground text-sm pb-8 space-y-2">
+          <p>April Fools' Idiot™ — Not real. Obviously. 🤡</p>
+          <p className="text-xs">
+            Made by{" "}
+            <a
+              href="https://instagram.com/itsnextgenfounder"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              @itsnextgenfounder
+            </a>
+            {" "}— Follow on Instagram ❤️
+          </p>
+          <a href="/admin" className="text-muted-foreground/50 hover:text-muted-foreground text-xs inline-block">
             Admin
           </a>
         </footer>
