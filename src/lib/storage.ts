@@ -145,6 +145,15 @@ const HARD_CLOSERS = [
   `I'd say there's plenty of fish in the sea, but you can't even fish. 🎣`,
 ];
 
+export function getTier(percentage: number): string {
+  if (percentage >= 98) return "Legendary 💀";
+  if (percentage >= 95) return "Diamond Cooked 💎";
+  if (percentage >= 90) return "Platinum NPC 🏆";
+  if (percentage >= 85) return "Gold Clown 🤡";
+  if (percentage >= 80) return "Silver Delusional 🥈";
+  return "Bronze Embarrassment 🥉";
+}
+
 export function generateGenZRoast(scanType: 'future' | 'love', name: string, crushName: string): { text: string, percentage: number } {
   // Select components randomly
   const opener = HARD_OPENERS[Math.floor(Math.random() * HARD_OPENERS.length)];
@@ -171,8 +180,10 @@ export function generateGenZRoast(scanType: 'future' | 'love', name: string, cru
     percentLabel = `${percent}% Certified Cringe`;
   }
 
+  const timerString = `⏳ Ex will text in: ${Math.floor(Math.random() * 60) + 1} days, ${Math.floor(Math.random() * 24)} hrs`;
+
   // Prepend the score as a fake AI header
-  const finalText = `[ SYSTEM RATING: ${percentLabel} ]\n\n${rawRoast}`;
+  const finalText = `[ SYSTEM RATING: ${percentLabel} ]\n\n${rawRoast}\n\n${timerString}`;
 
   return { text: finalText, percentage: percent };
 }

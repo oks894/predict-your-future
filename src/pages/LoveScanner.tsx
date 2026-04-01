@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import html2canvas from "html2canvas";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { addEntry, generateGenZRoast, isExpired } from "@/lib/storage";
+import { addEntry, generateGenZRoast, isExpired, getTier } from "@/lib/storage";
+import { playEerieScanSound, playDunDunDuuun, playSadTrombone } from "@/lib/audio";
 import type { ScanEntry } from "@/lib/storage";
 import StarField from "@/components/StarField";
 import ExpiryGate from "@/components/ExpiryGate";
@@ -128,6 +129,7 @@ const LoveScanner = () => {
 
   useEffect(() => {
     if (step !== "loading") return;
+    playEerieScanSound();
     const msgInterval = setInterval(() => setLoadingMsg(m => (m + 1) % LOADING_MESSAGES.length), 800);
     const progressInterval = setInterval(() => {
       setLoadingProgress(p => {
@@ -137,6 +139,7 @@ const LoveScanner = () => {
     }, 400);
     const timeout = setTimeout(() => {
       setStep("result");
+      Math.random() > 0.5 ? playDunDunDuuun() : playSadTrombone();
     }, 4000);
     return () => {
       clearInterval(msgInterval);
@@ -431,12 +434,15 @@ const LoveScanner = () => {
                 {result.roastText.split('\n\n').map((part, idx) => {
                   if (!part.trim()) return null;
                   const isSystemScore = part.includes("[ SYSTEM RATING:");
+                  const isTimer = part.includes("⏳");
                   return (
                     <div 
                       key={idx} 
                       className={`p-4 rounded-xl border shadow-sm ${
                         isSystemScore 
                           ? 'bg-accent/20 border-accent text-accent font-bold text-center glow-gold uppercase tracking-wide' 
+                          : isTimer
+                          ? 'bg-red-500/10 border-red-500/50 text-red-500 font-bold text-center animate-pulse'
                           : 'bg-background/80 border-border text-foreground text-base leading-relaxed italic'
                       }`}
                     >
@@ -445,8 +451,14 @@ const LoveScanner = () => {
                   );
                 })}
               </div>
-              <p className="text-muted-foreground text-xs mt-3">— Predict Your Future™ 🤡 Happy April Fools'</p>
-              <p className="text-muted-foreground text-xs">@itsnextgenfounder</p>
+              <div className="mt-6 pt-4 border-t border-accent/20 flex flex-col items-center justify-between text-[10px] text-accent/60 font-heading tracking-widest uppercase gap-2">
+                <div className="px-3 py-1 rounded-full bg-accent/10 border border-accent/30 text-accent">
+                  {getTier(result.roastPercentage || 0)}
+                </div>
+                <div className="flex items-center gap-1 opacity-70">
+                  <span className="text-sm">💔</span> LOVECALCULATOR.PREDICTYOURFUTURE.NET
+                </div>
+              </div>
             </div>
 
             <div className="flex flex-col gap-3 justify-center mt-8">
