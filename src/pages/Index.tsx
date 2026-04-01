@@ -6,6 +6,7 @@ import StarField from "@/components/StarField";
 import ExpiryGate from "@/components/ExpiryGate";
 import ShameBoard from "@/components/ShameBoard";
 import AuraCardGenerator from "@/components/AuraCard";
+import TopAuraBoard from "@/components/TopAuraBoard";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
@@ -101,6 +102,9 @@ const Index = () => {
             </button>
           </div>
         </div>
+
+        {/* Top Aura Leaderboard */}
+        <TopAuraBoard />
 
         {/* Hall of Prophecies */}
         {entries.length > 0 && (

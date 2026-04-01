@@ -170,6 +170,17 @@ export async function getPendingDares(): Promise<ScanEntry[]> {
   return data || [];
 }
 
+export async function getTopAuraEntries(limit = 10): Promise<ScanEntry[]> {
+  const { data, error } = await supabase
+    .from('entries')
+    .select('*')
+    .gt('aura', 0)
+    .order('aura', { ascending: false })
+    .limit(limit);
+  if (error) { console.error("Error fetching top aura:", error); return []; }
+  return data || [];
+}
+
 export async function getEntryById(id: string): Promise<ScanEntry | null> {
   const { data, error } = await supabase
     .from('entries')
