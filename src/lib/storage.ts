@@ -24,6 +24,15 @@ export interface ScanEntry {
   dareProofPhoto?: string;
 }
 
+export interface Review {
+  id: string;
+  name: string;
+  rating: number; // 1-5
+  comment: string;
+  status: 'pending' | 'approved' | 'rejected';
+  timestamp: number;
+}
+
 export interface DareChallenge {
   id: string;
   text: string;
@@ -148,6 +157,14 @@ export async function updateEntryDare(
     .update(updates)
     .eq('id', id);
   if (error) console.error("Error updating dare status:", error);
+}
+
+export async function updateEntry(id: string, updates: Partial<ScanEntry>) {
+  const { error } = await supabase
+    .from('entries')
+    .update(updates)
+    .eq('id', id);
+  if (error) console.error("Error updating entry:", error);
 }
 
 export async function getShameEntries(): Promise<ScanEntry[]> {
@@ -326,6 +343,35 @@ export async function syncAdminConfig(): Promise<void> {
       localStorage.setItem(row.key, row.value);
     });
   }
+}
+
+export async function getReviews(): Promise<Review[]> {
+  const { data, error } = await supabase.from('config').select('value').eq('key', 'platform_reviews').single();
+  if (data?.value && !error) {
+    try { return JSON.parse(data.value); } catch(e) { return []; }
+  }
+  return [];
+}
+
+export async function addReview(review: Review): Promise<void> {
+  const reviews = await getReviews();
+  reviews.push(review);
+  await supabase.from('config').upsert({ key: 'platform_reviews', value: JSON.stringify(reviews) });
+}
+
+export async function updateReviewStatus(id: string, status: 'approved' | 'rejected'): Promise<void> {
+  const reviews = await getReviews();
+  const index = reviews.findIndex(r => r.id === id);
+  if (index !== -1) {
+    reviews[index].status = status;
+    await supabase.from('config').upsert({ key: 'platform_reviews', value: JSON.stringify(reviews) });
+  }
+}
+
+export async function deleteReview(id: string): Promise<void> {
+  const reviews = await getReviews();
+  const newReviews = reviews.filter(r => r.id !== id);
+  await supabase.from('config').upsert({ key: 'platform_reviews', value: JSON.stringify(newReviews) });
 }
 
 export function exportToCSV(entries: ScanEntry[]): void {

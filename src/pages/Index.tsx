@@ -6,6 +6,7 @@ import StarField from "@/components/StarField";
 import ShameBoard from "@/components/ShameBoard";
 import AuraCardGenerator from "@/components/AuraCard";
 import TopAuraBoard from "@/components/TopAuraBoard";
+import WallOfLove from "@/components/WallOfLove";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
@@ -186,6 +187,9 @@ const Index = () => {
 
         {/* Dare Failures Shame Board */}
         <ShameBoard />
+
+        {/* User Reviews & Feedback */}
+        <WallOfLove />
       </div>
 
       {/* Footer */}
