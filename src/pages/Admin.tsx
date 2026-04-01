@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { getEntries, clearEntries, deleteEntry, exportToCSV, getHoursRemaining } from "@/lib/storage";
+import { getEntries, clearEntries, deleteEntry, exportToCSV, getHoursRemaining, getAdminUpiId, setAdminUpiId } from "@/lib/storage";
 import type { ScanEntry } from "@/lib/storage";
-import { Trash2, Download, Search, ShieldAlert, Key, Users, Clock, AlertTriangle } from "lucide-react";
+import { Trash2, Download, Search, ShieldAlert, Key, Users, Clock, AlertTriangle, QrCode, Save } from "lucide-react";
 
 const ADMIN_PASSWORD = "000000";
 const SESSION_KEY = "futurescan_admin";
@@ -16,6 +16,8 @@ const Admin = () => {
   const [search, setSearch] = useState("");
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [upiId, setUpiId] = useState("");
+  const [upiSaved, setUpiSaved] = useState(false);
 
   useEffect(() => {
     if (sessionStorage.getItem(SESSION_KEY) === "true") {
@@ -26,6 +28,7 @@ const Admin = () => {
   useEffect(() => {
     if (authed) {
       loadData();
+      setUpiId(getAdminUpiId());
     }
   }, [authed]);
 
@@ -175,6 +178,41 @@ const Admin = () => {
             <p className="text-muted-foreground text-sm font-semibold tracking-wider mb-2">TOP CRUSH TARGET</p>
             <p className="text-3xl font-heading text-accent truncate pt-2">{mostCommonCrush}</p>
           </div>
+        </div>
+
+        {/* UPI Settings Card */}
+        <div className="bg-secondary/40 backdrop-blur-md border border-border rounded-2xl p-6 mb-8 shadow-xl">
+          <div className="flex items-center gap-3 mb-4">
+            <QrCode className="w-5 h-5 text-primary" />
+            <h2 className="font-heading text-lg text-primary">Coward Fund — UPI Settings</h2>
+          </div>
+          <p className="text-muted-foreground text-sm mb-4">Set the UPI ID that appears in the ₹1 "Remove" QR code shown to users on the Global Shame Board.</p>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <input
+              value={upiId}
+              onChange={e => { setUpiId(e.target.value); setUpiSaved(false); }}
+              placeholder="e.g. yourname@okicici"
+              className="flex-1 px-4 py-3 bg-background/50 border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-mono text-sm"
+            />
+            <button
+              onClick={() => {
+                setAdminUpiId(upiId.trim());
+                setUpiSaved(true);
+                setTimeout(() => setUpiSaved(false), 3000);
+              }}
+              disabled={!upiId.trim()}
+              className="flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-heading hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed glow-box-gold"
+            >
+              <Save className="w-4 h-4" />
+              {upiSaved ? "Saved ✓" : "Save UPI ID"}
+            </button>
+          </div>
+          {upiId && (
+            <div className="mt-4 p-3 bg-background/30 rounded-lg border border-border/50 flex items-center gap-3">
+              <span className="text-muted-foreground text-xs font-mono">Active UPI:</span>
+              <span className="text-primary text-xs font-mono truncate">{upiId}</span>
+            </div>
+          )}
         </div>
 
         {/* Actions & Filters */}

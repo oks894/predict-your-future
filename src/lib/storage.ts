@@ -203,12 +203,20 @@ export function generateGenZRoast(scanType: 'future' | 'love', name: string, cru
     percentLabel = `${percent}% Certified Cringe`;
   }
 
-  const timerString = `⏳ Ex will text in: ${Math.floor(Math.random() * 60) + 1} days, ${Math.floor(Math.random() * 24)} hrs`;
-
-  // Prepend the score as a fake AI header
-  const finalText = `[ SYSTEM RATING: ${percentLabel} ]\n\n${rawRoast}\n\n${timerString}`;
+  // Prepend the score as a fake AI header (timer removed)
+  const finalText = `[ SYSTEM RATING: ${percentLabel} ]\n\n${rawRoast}`;
 
   return { text: finalText, percentage: percent };
+}
+
+const UPI_STORAGE_KEY = 'admin_upi_id';
+
+export function getAdminUpiId(): string {
+  return localStorage.getItem(UPI_STORAGE_KEY) || '';
+}
+
+export function setAdminUpiId(upiId: string): void {
+  localStorage.setItem(UPI_STORAGE_KEY, upiId);
 }
 
 export function exportToCSV(entries: ScanEntry[]): void {
