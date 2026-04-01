@@ -286,10 +286,15 @@ export function generateGenZRoast(scanType: 'future' | 'love', name: string, cru
   const body = bodies[Math.floor(Math.random() * bodies.length)];
   const closer = HARD_CLOSERS[Math.floor(Math.random() * HARD_CLOSERS.length)];
 
-  let rawRoast = `${opener}\n\n${body}\n\n${closer}`;
+  let rawRoast = `${opener} ${body} ${closer}`;
   
   // Replace tokens
-  rawRoast = rawRoast.replace(/\{N\}/g, name).replace(/\{C\}/g, crushName);
+  rawRoast = rawRoast.replace(/\{N\}/g, name || 'bro');
+  if (crushName) {
+    rawRoast = rawRoast.replace(/\{C\}/g, crushName);
+  } else {
+    rawRoast = rawRoast.replace(/\{C\}/g, 'literally anyone');
+  }
 
   // Generate harsh percentages
   let percent = 0;

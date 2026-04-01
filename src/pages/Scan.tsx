@@ -167,23 +167,24 @@ const Scan = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const age = parseInt(formData.age);
-    const crushAge = parseInt(formData.crushAge);
-    if (!formData.name || !age || !formData.crushName || !crushAge) return;
+    if (!formData.name || !age) return;
 
-    const gen = generateGenZRoast('future', formData.name, formData.crushName);
+    const gen = generateGenZRoast('future', formData.name, '');
+    const newAura = getAura() + 15;
+    
     const entry: ScanEntry = {
       id: crypto.randomUUID(),
       name: formData.name,
       age,
-      crushName: formData.crushName,
-      crushAge,
+      crushName: 'Life',
+      crushAge: age,
       facePhoto: photo,
-      crushPhoto,
+      crushPhoto: '',
       roastText: gen.text,
       timestamp: Date.now(),
       scanType: 'future',
       roastPercentage: gen.percentage,
-      aura: getAura()
+      aura: newAura
     };
     
     // Add success aura points
@@ -332,7 +333,7 @@ const Scan = () => {
                     <p className="text-muted-foreground text-sm px-4 uppercase tracking-widest">Awaiting Biometrics...</p>
                   </div>
                 ) : (
-                  <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover opacity-90 mix-blend-screen" />
+                  <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover opacity-80" />
                 )}
                 
                 {/* Targeting Reticles */}
@@ -380,7 +381,7 @@ const Scan = () => {
                   value={formData.name}
                   onChange={e => setFormData(f => ({ ...f, name: e.target.value }))}
                   required
-                  className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-foreground placeholder:text-white/30 focus:outline-none focus:border-primary/50 transition-all font-mono tracking-widest text-sm shadow-inner uppercase"
                   placeholder="Enter your name"
                 />
               </div>
@@ -393,42 +394,9 @@ const Scan = () => {
                   required
                   min={1}
                   max={120}
-                  className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-foreground placeholder:text-white/30 focus:outline-none focus:border-primary/50 transition-all font-mono tracking-widest text-sm shadow-inner"
                   placeholder="Age"
                 />
-              </div>
-              <div>
-                <label className="text-foreground text-sm mb-1 block">Your crush's name</label>
-                <input
-                  value={formData.crushName}
-                  onChange={e => setFormData(f => ({ ...f, crushName: e.target.value }))}
-                  required
-                  className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  placeholder="Who's the lucky one?"
-                />
-              </div>
-              <div>
-                <label className="text-foreground text-sm mb-1 block">Your crush's age</label>
-                <input
-                  type="number"
-                  value={formData.crushAge}
-                  onChange={e => setFormData(f => ({ ...f, crushAge: e.target.value }))}
-                  required
-                  min={1}
-                  max={120}
-                  className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  placeholder="Their age"
-                />
-              </div>
-              <div>
-                <label className="text-foreground text-sm mb-1 block">Upload their pic (Optional for deeper scan 👁️)</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileUpload}
-                  className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-                />
-                {crushPhoto && <p className="text-green-400 text-xs mt-1">Photo loaded ✅</p>}
               </div>
               <button
                 type="submit"
