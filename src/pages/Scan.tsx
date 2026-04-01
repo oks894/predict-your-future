@@ -314,7 +314,7 @@ const Scan = () => {
               <div className="p-4 rounded-lg bg-background/50 border border-border">
                 <p className="text-foreground text-lg italic">"{result.roastText}"</p>
               </div>
-              <p className="text-muted-foreground text-xs mt-3">— FutureScan AI™ 🤡 Happy April Fools'</p>
+              <p className="text-muted-foreground text-xs mt-3">— Predict Your Future™ 🤡 Happy April Fools'</p>
               <p className="text-muted-foreground text-xs">@itsnextgenfounder</p>
             </div>
 

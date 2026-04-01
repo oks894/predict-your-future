@@ -50,7 +50,7 @@ const Index = () => {
         {/* Hero — looks legit, no prank reveal */}
         <div className="text-center mb-10 md:mb-16">
           <h1 className="font-heading text-3xl md:text-6xl text-primary glow-gold mb-2 md:mb-4">
-            FutureScan AI
+            Predict Your Future
           </h1>
           <p className="text-lg md:text-2xl text-foreground/80 font-heading">
             🔮 See Your Destiny
@@ -145,7 +145,7 @@ const Index = () => {
 
         {/* Footer */}
         <footer className="text-center text-muted-foreground text-sm pb-8 space-y-2">
-          <p>FutureScan AI™ — Powered by Advanced Neural Networks 🧠</p>
+          <p>Predict Your Future™ — Powered by Advanced Neural Networks 🧠</p>
           <p className="text-xs">
             Made by{" "}
             <a
