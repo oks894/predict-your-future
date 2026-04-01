@@ -9,6 +9,7 @@ import LoveScanner from "./pages/LoveScanner";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import AuraHeader from "./components/AuraHeader";
+import Challenges from "./pages/Challenges";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/scan" element={<Scan />} />
           <Route path="/love" element={<LoveScanner />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/challenges" element={<Challenges />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </HashRouter>

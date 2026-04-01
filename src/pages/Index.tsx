@@ -12,13 +12,12 @@ const Index = () => {
   const [shareLink, setShareLink] = useState("");
   const [friendName, setFriendName] = useState("");
   const [copied, setCopied] = useState(false);
-  const [shameTab, setShameTab] = useState<'new'|'delusional'|'cringe'>('new');
+  const [shameTab, setShameTab] = useState<'new' | 'delusional' | 'cringe'>('new');
   const [cowardPromptEntry, setCowardPromptEntry] = useState<ScanEntry | null>(null);
   const [paymentClicked, setPaymentClicked] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // If a legacy challenge link hits the homepage, instantly redirect them to the scanner.
     if (challenge) {
       navigate(`/scan?challenge=${encodeURIComponent(challenge)}`, { replace: true });
     }
@@ -34,12 +33,12 @@ const Index = () => {
   const appUrl = window.location.origin;
   const scanUrl = `${appUrl}/#/scan`;
   const whatsappText = encodeURIComponent(`Bro this AI just violated me 💀💀 It exposed my whole life! I double dare you to scan your face and see what it says about you 👇 ${scanUrl}`);
-  
+
   let displayEntries = [...entries];
   if (shameTab === 'delusional') {
-    displayEntries = displayEntries.filter(e => e.scanType === 'love').sort((a,b) => (b.roastPercentage||0) - (a.roastPercentage||0));
+    displayEntries = displayEntries.filter(e => e.scanType === 'love').sort((a, b) => (b.roastPercentage || 0) - (a.roastPercentage || 0));
   } else if (shameTab === 'cringe') {
-    displayEntries = displayEntries.filter(e => e.scanType !== 'love').sort((a,b) => (b.roastPercentage||0) - (a.roastPercentage||0));
+    displayEntries = displayEntries.filter(e => e.scanType !== 'love').sort((a, b) => (b.roastPercentage || 0) - (a.roastPercentage || 0));
   }
 
   const generateChallengeLink = () => {
@@ -56,8 +55,9 @@ const Index = () => {
   return (
     <div className="min-h-[100dvh] bg-mystical relative overflow-hidden">
       <StarField />
-      
+
       <div className="relative z-10 max-w-4xl mx-auto px-4 py-6 md:py-12">
+
         {/* Hero */}
         <div className="text-center mb-10 md:mb-16">
           <h1 className="font-heading text-3xl md:text-6xl text-primary glow-gold mb-2 md:mb-4">
@@ -82,7 +82,16 @@ const Index = () => {
             >
               Love Calculator 💔
             </button>
-                  {/* Hall of Prophecies */}
+            <button
+              onClick={() => navigate("/challenges")}
+              className="px-8 py-4 bg-secondary text-foreground font-heading text-lg rounded-lg border border-primary/40 hover:border-primary hover:scale-105 transition-all w-full sm:w-auto"
+            >
+              ⚔️ Challenge Arena
+            </button>
+          </div>
+        </div>
+
+        {/* Hall of Prophecies */}
         {entries.length > 0 && (
           <div className="mb-16">
             <h2 className="font-heading text-3xl text-primary glow-gold text-center mb-6">
@@ -110,9 +119,9 @@ const Index = () => {
               </button>
             </div>
             
-            <div className="grid gap-4 max-h-[500px] overflow-y-auto pr-2 overflow-x-hidden p-1 custom-scrollbar">
+            <div className="grid gap-4 max-h-[500px] overflow-y-auto pr-2 overflow-x-hidden p-1">
               {displayEntries.map((e, i) => (
-                <div key={e.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-xl bg-secondary/80 border border-primary/20 shadow-md hover:border-primary/50 hover:bg-secondary transition-all">
+                <div key={e.id} className={`flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-xl bg-secondary/80 border border-primary/20 shadow-md hover:border-primary/50 hover:bg-secondary transition-all ${i % 3 === 0 ? 'animate-float-slow' : i % 3 === 1 ? 'animate-float-medium' : 'animate-float-alt'}`}>
                   <div className="flex items-center gap-4 w-full sm:w-auto">
                     <span className="text-primary font-heading text-xl font-bold w-8 text-center">#{i + 1}</span>
                     <div className="flex -space-x-4">
@@ -163,6 +172,66 @@ const Index = () => {
           </div>
         )}
 
+        {/* Coward Fund Modal */}
+        {cowardPromptEntry && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
+            <div className="bg-secondary border border-primary/30 p-6 rounded-xl max-w-sm w-full relative shadow-[0_0_30px_rgba(212,175,55,0.2)]">
+              {!paymentClicked ? (
+                <div className="text-center">
+                  <span className="text-5xl mb-4 block">💸</span>
+                  <h2 className="text-2xl font-heading text-primary mb-2">The Coward Fund</h2>
+                  <p className="text-sm text-foreground/80 mb-6 leading-relaxed">
+                    Too embarrassed to leave <strong className="text-primary">{cowardPromptEntry.name}</strong> on the Global Shame Board? Pay a massive ₹1 fee to the Coward Fund to hide this record forever.
+                  </p>
+                  <div className="p-4 bg-background/50 rounded-xl mb-6 border border-border">
+                    <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider font-bold">Scan UPI QR to Pay ₹1</p>
+                    <div className="w-32 h-32 bg-white mx-auto flex items-center justify-center rounded-lg p-2 shadow-inner">
+                      <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=itsnextgenfounder@okicici&pn=PredictYourFuture&am=1.00&cu=INR`} alt="UPI QR" className="w-full h-full object-contain" />
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <button 
+                      onClick={() => setCowardPromptEntry(null)}
+                      className="flex-1 px-4 py-3 bg-muted/50 text-muted-foreground rounded-lg font-heading hover:bg-muted transition-colors uppercase tracking-wide text-sm"
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      onClick={() => setPaymentClicked(true)}
+                      className="flex-[1.5] px-4 py-3 bg-green-600 text-foreground rounded-lg font-heading hover:bg-green-700 transition-colors shadow-[0_0_15px_rgba(34,197,94,0.3)] uppercase tracking-wide text-sm"
+                    >
+                      I Paid! ✨
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center">
+                  <span className="text-6xl mb-4 block animate-shake">🤡</span>
+                  <h2 className="text-3xl font-heading text-accent mb-2">PRANKED!</h2>
+                  <p className="text-base text-foreground/90 mb-4 font-bold">
+                    You really thought you could buy your way out of embarrassment for 1 Rupee?
+                  </p>
+                  <div className="p-4 bg-accent/10 border border-accent/20 rounded-lg mb-6 text-left">
+                      <p className="text-sm text-muted-foreground mb-2">1. Your record is staying up permanently.</p>
+                      <p className="text-sm text-muted-foreground">2. The Cosmic Gods watched you try to bribe your way out of shame.</p>
+                  </div>
+                  <p className="text-center text-accent font-bold mb-6 text-lg animate-pulse">PENALTY: -50 AURA</p>
+                  <button 
+                    onClick={() => {
+                      addAura(-50);
+                      setPaymentClicked(false);
+                      setCowardPromptEntry(null);
+                    }}
+                    className="w-full px-4 py-4 bg-accent text-accent-foreground rounded-lg font-heading hover:opacity-90 transition-opacity shadow-[0_0_15px_rgba(255,0,100,0.4)] uppercase tracking-wider"
+                  >
+                    Accept Defeat
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Share Section */}
         <div className="mb-16 space-y-4">
           <h2 className="font-heading text-2xl text-primary glow-gold text-center mb-4">
@@ -186,7 +255,7 @@ const Index = () => {
             </button>
           </div>
 
-           {/* Challenge Link */}
+          {/* Challenge Link */}
           <div className="max-w-md mx-auto mt-8 border-t border-border/50 pt-6 text-center">
             <h3 className="text-primary font-heading text-xl mb-2">⚔️ Challenge a Friend</h3>
             <p className="text-muted-foreground text-sm mb-4">Send a direct challenge link to trigger their roast 👇</p>
@@ -203,71 +272,7 @@ const Index = () => {
               >
                 Generate Link
               </button>
-              {cowardPromptEntry && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
-          <div className="bg-secondary border border-primary/30 p-6 rounded-xl max-w-sm w-full relative shadow-[0_0_30px_rgba(212,175,55,0.2)] animate-in fade-in zoom-in duration-300">
-            {!paymentClicked ? (
-              <div className="text-center">
-                <span className="text-5xl mb-4 block">💸</span>
-                <h2 className="text-2xl font-heading text-primary mb-2">The Coward Fund</h2>
-                <p className="text-sm text-foreground/80 mb-6 leading-relaxed">
-                  Too embarrassed to leave <strong className="text-primary">{cowardPromptEntry.name}</strong> on the Global Shame Board? Pay a massive ₹1 fee to the Coward Fund to hide this record forever.
-                </p>
-                <div className="p-4 bg-background/50 rounded-xl mb-6 border border-border">
-                  <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider font-bold">Scan UPI QR to Pay ₹1</p>
-                  <div className="w-32 h-32 bg-white mx-auto flex items-center justify-center rounded-lg p-2 shadow-inner">
-                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=itsnextgenfounder@okicici&pn=PredictYourFuture&am=1.00&cu=INR`} alt="UPI QR" className="w-full h-full object-contain" />
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <button 
-                    onClick={() => setCowardPromptEntry(null)}
-                    className="flex-1 px-4 py-3 bg-muted/50 text-muted-foreground rounded-lg font-heading hover:bg-muted transition-colors uppercase tracking-wide text-sm"
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    onClick={() => setPaymentClicked(true)}
-                    className="flex-[1.5] px-4 py-3 bg-green-600 text-foreground rounded-lg font-heading hover:bg-green-700 transition-colors shadow-[0_0_15px_rgba(34,197,94,0.3)] uppercase tracking-wide text-sm"
-                  >
-                    I Paid! ✨
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center">
-                <span className="text-6xl mb-4 block animate-shake">🤡</span>
-                <h2 className="text-3xl font-heading text-accent mb-2">PRANKED!</h2>
-                <p className="text-base text-foreground/90 mb-4 font-bold">
-                  You really thought you could buy your way out of embarrassment for 1 Rupee?
-                </p>
-                <div className="p-4 bg-accent/10 border border-accent/20 rounded-lg mb-6 text-left">
-                    <p className="text-sm text-muted-foreground mb-2">
-                    1. Your record is staying up permanently.
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                    2. The Cosmic Gods watched you try to bribe your way out of shame.
-                    </p>
-                </div>
-                <p className="text-center text-accent font-bold mb-6 text-lg animate-pulse">
-                    PENALTY: -50 AURA
-                </p>
-                <button 
-                  onClick={() => {
-                    addAura(-50);
-                    setPaymentClicked(false);
-                    setCowardPromptEntry(null);
-                  }}
-                  className="w-full px-4 py-4 bg-accent text-accent-foreground rounded-lg font-heading hover:opacity-90 transition-opacity shadow-[0_0_15px_rgba(255,0,100,0.4)] uppercase tracking-wider"
-                >
-                  Accept Defeat
-                </button>
-              </div>
-            )}
-           </div>
-        </div>
-      )}
-    </div>
+            </div>
             {shareLink && (
               <div className="mt-2 p-2 bg-muted rounded text-sm break-all">
                 <span className="text-muted-foreground">{shareLink}</span>
@@ -301,6 +306,72 @@ const Index = () => {
           </div>
         </footer>
       </div>
+
+      {/* Coward Fund Modal — rendered at root level so it floats above everything */}
+      {cowardPromptEntry && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
+          <div className="bg-secondary border border-primary/30 p-6 rounded-xl max-w-sm w-full relative shadow-[0_0_30px_rgba(212,175,55,0.2)]">
+            {!paymentClicked ? (
+              <div className="text-center">
+                <span className="text-5xl mb-4 block">💸</span>
+                <h2 className="text-2xl font-heading text-primary mb-2">The Coward Fund</h2>
+                <p className="text-sm text-foreground/80 mb-6 leading-relaxed">
+                  Too embarrassed to leave <strong className="text-primary">{cowardPromptEntry.name}</strong> on the Global Shame Board? Pay a massive ₹1 fee to hide this record forever.
+                </p>
+                <div className="p-4 bg-background/50 rounded-xl mb-6 border border-border">
+                  <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider font-bold">Scan UPI QR to Pay ₹1</p>
+                  <div className="w-32 h-32 bg-white mx-auto flex items-center justify-center rounded-lg p-2 shadow-inner">
+                    <img
+                      src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=itsnextgenfounder@okicici&pn=PredictYourFuture&am=1.00&cu=INR"
+                      alt="UPI QR"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setCowardPromptEntry(null)}
+                    className="flex-1 px-4 py-3 bg-muted/50 text-muted-foreground rounded-lg font-heading hover:bg-muted transition-colors uppercase tracking-wide text-sm"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => setPaymentClicked(true)}
+                    className="flex-[1.5] px-4 py-3 bg-green-600 text-foreground rounded-lg font-heading hover:bg-green-700 transition-colors shadow-[0_0_15px_rgba(34,197,94,0.3)] uppercase tracking-wide text-sm"
+                  >
+                    I Paid! ✨
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center">
+                <span className="text-6xl mb-4 block">🤡</span>
+                <h2 className="text-3xl font-heading text-accent mb-2">PRANKED!</h2>
+                <p className="text-base text-foreground/90 mb-4 font-bold">
+                  You really thought ₹1 could buy your way out of eternal shame?
+                </p>
+                <div className="p-4 bg-accent/10 border border-accent/20 rounded-lg mb-6 text-left space-y-2">
+                  <p className="text-sm text-muted-foreground">1. Your record is staying up permanently. 💀</p>
+                  <p className="text-sm text-muted-foreground">2. The Cosmic Gods witnessed you try to bribe your way out.</p>
+                </div>
+                <p className="text-center text-accent font-bold mb-6 text-xl animate-pulse">
+                  PENALTY: -50 AURA ⚡
+                </p>
+                <button
+                  onClick={() => {
+                    addAura(-50);
+                    setPaymentClicked(false);
+                    setCowardPromptEntry(null);
+                  }}
+                  className="w-full px-4 py-4 bg-accent text-accent-foreground rounded-lg font-heading hover:opacity-90 transition-opacity shadow-[0_0_15px_rgba(255,0,100,0.4)] uppercase tracking-wider"
+                >
+                  Accept Defeat 😔
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
