@@ -23,6 +23,7 @@ const Scan = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [step, setStep] = useState<Step>("capture");
   const [photo, setPhoto] = useState<string>("");
+  const [crushPhoto, setCrushPhoto] = useState<string>("");
   const [countdown, setCountdown] = useState(5);
   const [loadingMsg, setLoadingMsg] = useState(0);
   const [formData, setFormData] = useState({ name: "", age: "", crushName: "", crushAge: "" });
@@ -137,6 +138,7 @@ const Scan = () => {
       crushName: formData.crushName,
       crushAge,
       facePhoto: photo,
+      crushPhoto,
       roastText: roast,
       timestamp: Date.now(),
     };
@@ -163,6 +165,26 @@ const Scan = () => {
     } catch (err) {
       console.error("Image export error:", err);
     }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ratio = Math.min(320 / img.width, 240 / img.height);
+        canvas.width = img.width * ratio;
+        canvas.height = img.height * ratio;
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+        setCrushPhoto(canvas.toDataURL("image/jpeg", 0.6));
+      };
+      img.src = ev.target?.result as string;
+    };
+    reader.readAsDataURL(file);
   };
 
   if (isExpired()) return <ExpiryGate />;
@@ -264,11 +286,21 @@ const Scan = () => {
                   placeholder="Their age"
                 />
               </div>
+              <div>
+                <label className="text-foreground text-sm mb-1 block">Upload their pic (Optional for deeper scan 👁️)</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                />
+                {crushPhoto && <p className="text-green-400 text-xs mt-1">Photo loaded ✅</p>}
+              </div>
               <button
                 type="submit"
                 className="w-full py-4 bg-primary text-primary-foreground font-heading text-lg rounded-lg glow-box-gold hover:scale-[1.02] transition-transform"
               >
-                Reveal My Future 🔮
+                Reveal My Roasted Meme 🔮
               </button>
             </form>
           </div>
@@ -297,18 +329,32 @@ const Scan = () => {
         {/* STEP 4: Result — THIS is where the prank is revealed */}
         {step === "result" && result && (
           <div className="text-center">
-            <h2 className="font-heading text-2xl text-primary glow-gold mb-6">Your Prophecy Has Arrived</h2>
+            <h2 className="font-heading text-2xl text-primary glow-gold mb-6">Your Roasted Meme</h2>
 
             {/* Prophecy Card — also used for image export */}
             <div
               id="prophecy-card"
               className="mx-auto max-w-sm p-6 rounded-xl bg-gradient-to-b from-secondary to-card border border-primary/30 glow-box-gold"
             >
-              <img
-                src={result.facePhoto}
-                alt={result.name}
-                className="w-24 h-24 rounded-full mx-auto mb-4 border-2 border-primary object-cover"
-              />
+              <div className="flex justify-center items-center gap-2 mb-4">
+                <img
+                  src={result.facePhoto}
+                  alt={result.name}
+                  className="w-20 h-20 rounded-full border-2 border-primary object-cover"
+                />
+                {result.crushPhoto ? (
+                  <>
+                    <span className="text-2xl animate-pulse">💔</span>
+                    <img
+                      src={result.crushPhoto}
+                      alt={result.crushName}
+                      className="w-20 h-20 rounded-full border-2 border-accent object-cover"
+                    />
+                  </>
+                ) : (
+                  <span className="text-2xl animate-pulse">🔮</span>
+                )}
+              </div>
               <h3 className="font-heading text-xl text-primary mb-1">{result.name}</h3>
               <p className="text-muted-foreground text-sm mb-4">Age {result.age} • Crushing on {result.crushName}</p>
               <div className="p-4 rounded-lg bg-background/50 border border-border">

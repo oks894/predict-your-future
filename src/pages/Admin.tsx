@@ -146,6 +146,7 @@ const Admin = () => {
               <th className="py-2 px-2 text-left text-terminal/50">Photo</th>
               <th className="py-2 px-2 text-left text-terminal/50">Name</th>
               <th className="py-2 px-2 text-left text-terminal/50">Age</th>
+              <th className="py-2 px-2 text-left text-terminal/50">C.Photo</th>
               <th className="py-2 px-2 text-left text-terminal/50">Crush</th>
               <th className="py-2 px-2 text-left text-terminal/50">C.Age</th>
               <th className="py-2 px-2 text-left text-terminal/50">Roast</th>
@@ -161,6 +162,13 @@ const Admin = () => {
                 </td>
                 <td className="py-2 px-2">{e.name}</td>
                 <td className="py-2 px-2">{e.age}</td>
+                <td className="py-2 px-2">
+                  {e.crushPhoto ? (
+                    <img src={e.crushPhoto} alt="" className="w-8 h-8 rounded object-cover" loading="lazy" />
+                  ) : (
+                    <span className="text-terminal/30 text-xs">N/A</span>
+                  )}
+                </td>
                 <td className="py-2 px-2">{e.crushName}</td>
                 <td className="py-2 px-2">{e.crushAge}</td>
                 <td className="py-2 px-2 max-w-xs truncate">{e.roastText}</td>
@@ -168,7 +176,7 @@ const Admin = () => {
               </tr>
             ))}
             {filtered.length === 0 && (
-              <tr><td colSpan={8} className="py-8 text-center text-terminal/30">No data found.</td></tr>
+              <tr><td colSpan={9} className="py-8 text-center text-terminal/30">No data found.</td></tr>
             )}
           </tbody>
         </table>

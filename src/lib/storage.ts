@@ -5,6 +5,7 @@ export interface ScanEntry {
   crushName: string;
   crushAge: number;
   facePhoto: string;
+  crushPhoto?: string;
   roastText: string;
   timestamp: number;
 }

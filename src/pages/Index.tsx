@@ -142,19 +142,29 @@ const Index = () => {
         {entries.length > 0 && (
           <div className="mb-16">
             <h2 className="font-heading text-2xl text-primary glow-gold text-center mb-6">
-              🏆 Recent Prophecies
+              🔥 Hall of Roasted Idiots
             </h2>
             <div className="grid gap-3 max-h-96 overflow-y-auto pr-2">
               {entries.map((e, i) => (
                 <div key={e.id} className="flex items-center gap-4 p-3 rounded-lg bg-secondary/50 border border-border">
-                  <span className="text-primary font-heading text-sm">#{i + 1}</span>
-                  <img
-                    src={e.facePhoto}
-                    alt={e.name}
-                    className="w-10 h-10 rounded-full object-cover border border-primary/30"
-                    loading="lazy"
-                  />
-                  <div className="flex-1 min-w-0">
+                  <span className="text-primary font-heading text-sm whitespace-nowrap">#{i + 1}</span>
+                  <div className="flex -space-x-4">
+                    <img
+                      src={e.facePhoto}
+                      alt={e.name}
+                      className="w-12 h-12 rounded-full object-cover border-2 border-primary relative z-10"
+                      loading="lazy"
+                    />
+                    {e.crushPhoto && (
+                      <img
+                        src={e.crushPhoto}
+                        alt="Crush"
+                        className="w-12 h-12 rounded-full object-cover border-2 border-accent relative z-0"
+                        loading="lazy"
+                      />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0 ml-2">
                     <p className="text-foreground font-medium truncate">{e.name}, {e.age}</p>
                     <p className="text-muted-foreground text-sm truncate">{e.roastText}</p>
                   </div>
@@ -188,8 +198,9 @@ const Index = () => {
           </div>
 
           {/* Challenge Link */}
-          <div className="max-w-md mx-auto mt-6">
-            <p className="text-muted-foreground text-sm text-center mb-2">Challenge a friend:</p>
+          <div className="max-w-md mx-auto mt-8 border-t border-border/50 pt-6 text-center">
+            <h3 className="text-primary font-heading text-xl mb-2">⚔️ Challenge a Friend</h3>
+            <p className="text-muted-foreground text-sm mb-4">Send a direct challenge link to trigger their roast 👇</p>
             <div className="flex flex-col sm:flex-row gap-2 mt-2">
               <input
                 value={friendName}
@@ -201,7 +212,7 @@ const Index = () => {
                 onClick={generateChallengeLink}
                 className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
               >
-                Generate
+                Generate Link
               </button>
             </div>
             {shareLink && (
