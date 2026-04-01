@@ -450,7 +450,7 @@ const Scan = () => {
                 📸 Download as Image
               </button>
               <a
-                href={`https://wa.me/?text=${encodeURIComponent(`My prophecy: "${result.roastText}" 😂 Try yours 👇 ${appUrl}/#/scan`)}`}
+                href={`https://wa.me/?text=${encodeURIComponent(`Bro this AI just humiliated me 💀 It literally rated my face as ${result.roastPercentage}% CRINGE! I double dare you to scan yours and see what it says 👇\n${appUrl}/#/scan`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-6 py-3 bg-green-600 text-foreground rounded-lg hover:bg-green-700 transition-colors text-center"
@@ -459,7 +459,7 @@ const Scan = () => {
               </a>
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText(`My prophecy: "${result.roastText}" 😂 Try yours 👇 ${appUrl}/#/scan`);
+                  navigator.clipboard.writeText(`Bro this AI just humiliated me 💀 It literally rated my face as ${result.roastPercentage}% CRINGE! I double dare you to scan yours and see what it says 👇\n${appUrl}/#/scan`);
                   setCopied(true);
                   setTimeout(() => setCopied(false), 2000);
                 }}

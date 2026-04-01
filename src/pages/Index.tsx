@@ -30,7 +30,7 @@ const Index = () => {
 
   const appUrl = window.location.origin;
   const scanUrl = `${appUrl}/#/scan`;
-  const whatsappText = encodeURIComponent(`This AI just predicted my future and I'm SHOOK 😱🔮 Try it yourself 👇 ${scanUrl}`);
+  const whatsappText = encodeURIComponent(`Bro this AI just violated me 💀💀 It exposed my whole life! I double dare you to scan your face and see what it says about you 👇 ${scanUrl}`);
 
   const generateChallengeLink = () => {
     if (!friendName.trim()) return;
@@ -135,7 +135,7 @@ const Index = () => {
               Share on WhatsApp
             </a>
             <button
-              onClick={() => copyToClipboard(`This AI just predicted my future and I'm SHOOK 😱🔮 Try it yourself 👇 ${scanUrl}`)}
+              onClick={() => copyToClipboard(`Bro this AI just violated me 💀💀 It exposed my whole life! I double dare you to scan your face and see what it says about you 👇 ${scanUrl}`)}
               className="px-6 py-3 bg-secondary text-foreground rounded-lg hover:bg-secondary/80 transition-colors"
             >
               {copied ? "Copied! ✅" : "Copy for Instagram"}

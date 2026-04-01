@@ -454,7 +454,7 @@ const LoveScanner = () => {
                 📸 Download as Image
               </button>
               <a
-                href={`https://wa.me/?text=${encodeURIComponent(`My prophecy: "${result.roastText}" 😂 Try yours 👇 ${appUrl}/#/scan`)}`}
+                href={`https://wa.me/?text=${encodeURIComponent(`Nah the AI Love Calculator just humbled me so bad 😭😭 It said I'm ${result.roastPercentage}% Delusional thinking about ${result.crushName}! Check your compatibility before it's too late 👇\n${appUrl}/#/love`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-6 py-3 bg-green-600 text-foreground rounded-lg hover:bg-green-700 transition-colors text-center"
@@ -463,7 +463,7 @@ const LoveScanner = () => {
               </a>
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText(`My prophecy: "${result.roastText}" 😂 Try yours 👇 ${appUrl}/#/scan`);
+                  navigator.clipboard.writeText(`Nah the AI Love Calculator just humbled me so bad 😭😭 It said I'm ${result.roastPercentage}% Delusional thinking about ${result.crushName}! Check your compatibility before it's too late 👇\n${appUrl}/#/love`);
                   setCopied(true);
                   setTimeout(() => setCopied(false), 2000);
                 }}
