@@ -245,6 +245,7 @@ const Admin = () => {
             <table className="w-full text-sm text-left">
               <thead className="bg-background/50 text-muted-foreground border-b border-border">
                 <tr>
+                  <th className="py-4 px-4 font-semibold">Type</th>
                   <th className="py-4 px-4 font-semibold">User</th>
                   <th className="py-4 px-4 font-semibold">Target Crush</th>
                   <th className="py-4 px-4 font-semibold max-w-xs">AI Prophecy Overview</th>
@@ -255,6 +256,14 @@ const Admin = () => {
               <tbody className="divide-y divide-border">
                 {filtered.map((e) => (
                   <tr key={e.id} className="hover:bg-background/40 transition-colors group">
+                    <td className="py-3 px-4">
+                      {e.scanType === 'love' ? (
+                        <span className="px-2 py-1 bg-accent/20 text-accent rounded-full text-xs font-bold whitespace-nowrap">LOVE</span>
+                      ) : (
+                        <span className="px-2 py-1 bg-primary/20 text-primary rounded-full text-xs font-bold whitespace-nowrap">FUTURE</span>
+                      )}
+                      <div className="text-xs font-bold mt-2 text-primary">{e.roastPercentage || 0}%</div>
+                    </td>
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
                         <img src={e.facePhoto} alt="" className="w-10 h-10 rounded-full object-cover border border-primary/20" loading="lazy" />
@@ -303,7 +312,7 @@ const Admin = () => {
                 
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="py-16 text-center text-muted-foreground">
+                    <td colSpan={6} className="py-16 text-center text-muted-foreground">
                       {isLoading ? (
                         <div className="flex flex-col items-center justify-center">
                           <div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin mb-4" />

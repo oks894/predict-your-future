@@ -59,12 +59,20 @@ const Index = () => {
           <p className="text-sm md:text-base text-accent font-heading mt-1">Advanced AI face analysis powered by neural networks</p>
           <p className="text-muted-foreground mt-2 text-sm">🧬 AI-powered face analysis • 14 billion timelines scanned</p>
 
-          <button
-            onClick={() => navigate("/scan")}
-            className="inline-block mt-8 px-8 py-4 bg-primary text-primary-foreground font-heading text-lg rounded-lg glow-box-gold hover:scale-105 transition-transform"
-          >
-            Scan My Future
-          </button>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
+            <button
+              onClick={() => navigate("/scan")}
+              className="px-8 py-4 bg-primary text-primary-foreground font-heading text-lg rounded-lg glow-box-gold hover:scale-105 transition-transform w-full sm:w-auto"
+            >
+              Scan My Future 🔮
+            </button>
+            <button
+              onClick={() => navigate("/love")}
+              className="px-8 py-4 bg-accent text-accent-foreground font-heading text-lg rounded-lg shadow-[0_0_15px_rgba(255,0,100,0.5)] hover:scale-105 transition-transform w-full sm:w-auto"
+            >
+              Love Calculator 💔
+            </button>
+          </div>
         </div>
 
         {/* Hall of Prophecies */}
@@ -94,8 +102,16 @@ const Index = () => {
                     )}
                   </div>
                   <div className="flex-1 min-w-0 ml-2">
-                    <p className="text-foreground font-medium truncate">{e.name}, {e.age}</p>
-                    <p className="text-muted-foreground text-sm truncate">{e.roastText}</p>
+                    <p className="text-foreground font-medium truncate">
+                      {e.name}, {e.age}
+                      <span className={`ml-2 px-2 py-0.5 text-xs rounded-full ${e.scanType === 'love' ? 'bg-accent/20 text-accent' : 'bg-primary/20 text-primary'}`}>
+                        {e.scanType === 'love' ? 'Love Scan' : 'Future Scan'}
+                      </span>
+                    </p>
+                    <p className="text-primary font-bold text-xs mt-0.5">
+                      {e.roastPercentage || 0}% {e.scanType === 'love' ? 'Delusional' : 'Cringe'}
+                    </p>
+                    <p className="text-muted-foreground text-sm truncate w-full" title={e.roastText}>{e.roastText}</p>
                   </div>
                 </div>
               ))}

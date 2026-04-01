@@ -17,7 +17,7 @@ const LOADING_MESSAGES = [
 
 type Step = "capture" | "form" | "loading" | "result";
 
-const Scan = () => {
+const LoveScanner = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const challenge = searchParams.get("challenge");
@@ -149,9 +149,12 @@ const Scan = () => {
     e.preventDefault();
     const age = parseInt(formData.age);
     const crushAge = parseInt(formData.crushAge);
-    if (!formData.name || !age || !formData.crushName || !crushAge) return;
+    if (!crushPhoto) {
+      alert("You MUST upload their picture for the Love Calculator!");
+      return;
+    }
 
-    const gen = generateGenZRoast('future', formData.name, formData.crushName);
+    const gen = generateGenZRoast('love', formData.name, formData.crushName);
     const entry: ScanEntry = {
       id: crypto.randomUUID(),
       name: formData.name,
@@ -162,7 +165,7 @@ const Scan = () => {
       crushPhoto,
       roastText: gen.text,
       timestamp: Date.now(),
-      scanType: 'future',
+      scanType: 'love',
       roastPercentage: gen.percentage,
     };
     
@@ -281,7 +284,8 @@ const Scan = () => {
         {/* STEP 1: Capture */}
         {step === "capture" && (
           <div className="text-center">
-            <h2 className="font-heading text-2xl text-primary glow-gold mb-6">Scanning Your Face...</h2>
+            <h2 className="font-heading text-2xl mb-2 text-foreground">Brutal Love Calculator 💔</h2>
+            <h2 className="font-heading text-xl text-primary glow-gold mb-6">First, we need your face...</h2>
             <div className="relative mx-auto w-72 h-72 rounded-full overflow-hidden border-4 border-primary/50 glow-box-gold">
               {cameraError ? (
                 <div className="w-full h-full flex flex-col items-center justify-center bg-secondary/50">
@@ -366,7 +370,7 @@ const Scan = () => {
                 />
               </div>
               <div>
-                <label className="text-foreground text-sm mb-1 block">Upload their pic (Optional for deeper scan 👁️)</label>
+                <label className="text-foreground text-sm mb-1 block">Upload their pic (Required for Love Calculator 💔)</label>
                 <input
                   type="file"
                   accept="image/*"
@@ -379,7 +383,7 @@ const Scan = () => {
                 type="submit"
                 className="w-full py-4 bg-primary text-primary-foreground font-heading text-lg rounded-lg glow-box-gold hover:scale-[1.02] transition-transform"
               >
-                Reveal My Roasted Meme 🔮
+                Calculate Love Destiny 💔
               </button>
             </form>
           </div>
@@ -482,4 +486,4 @@ const Scan = () => {
   );
 };
 
-export default Scan;
+export default LoveScanner;
