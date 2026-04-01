@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import html2canvas from "html2canvas";
 import { useNavigate } from "react-router-dom";
 import { addEntry, generateRoast, isExpired } from "@/lib/storage";
 import type { ScanEntry } from "@/lib/storage";
@@ -99,6 +100,24 @@ const Scan = () => {
     addEntry(entry);
     setResult(entry);
     setStep("result");
+  };
+
+  const downloadCardAsImage = async () => {
+    const card = document.getElementById("prophecy-card");
+    if (!card) return;
+    try {
+      const canvas = await html2canvas(card, {
+        backgroundColor: "#1a0a2e",
+        scale: 2,
+        useCORS: true,
+      });
+      const link = document.createElement("a");
+      link.download = `april-fools-${formData.name || "roast"}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    } catch (err) {
+      console.error("Image export error:", err);
+    }
   };
 
   if (isExpired()) return <ExpiryGate />;
@@ -208,8 +227,11 @@ const Scan = () => {
           <div className="text-center">
             <h2 className="font-heading text-2xl text-primary glow-gold mb-6">Your Prophecy</h2>
 
-            {/* Prophecy Card */}
-            <div className="mx-auto max-w-sm p-6 rounded-xl bg-gradient-to-b from-secondary to-card border border-primary/30 glow-box-gold">
+            {/* Prophecy Card — also used for image export */}
+            <div
+              id="prophecy-card"
+              className="mx-auto max-w-sm p-6 rounded-xl bg-gradient-to-b from-secondary to-card border border-primary/30 glow-box-gold"
+            >
               <img
                 src={result.facePhoto}
                 alt={result.name}
@@ -220,28 +242,35 @@ const Scan = () => {
               <div className="p-4 rounded-lg bg-background/50 border border-border">
                 <p className="text-foreground text-lg italic">"{result.roastText}"</p>
               </div>
-              <p className="text-muted-foreground text-xs mt-3">— FutureScan AI™</p>
+              <p className="text-muted-foreground text-xs mt-3">— April Fools' Idiot™</p>
+              <p className="text-muted-foreground text-xs">@itsnextgenfounder</p>
             </div>
 
             {/* Share buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 justify-center mt-8">
+            <div className="flex flex-col gap-3 justify-center mt-8">
+              <button
+                onClick={downloadCardAsImage}
+                className="px-6 py-3 bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-opacity"
+              >
+                📸 Download as Image (Share on Instagram)
+              </button>
               <a
-                href={`https://wa.me/?text=${encodeURIComponent(`My FutureScan prophecy: "${result.roastText}" 😂 Try yours 👇 ${appUrl}`)}`}
+                href={`https://wa.me/?text=${encodeURIComponent(`My prophecy: "${result.roastText}" 😂 Try yours 👇 ${appUrl}`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-6 py-3 bg-green-600 text-foreground rounded-lg hover:bg-green-700 transition-colors"
+                className="px-6 py-3 bg-green-600 text-foreground rounded-lg hover:bg-green-700 transition-colors text-center"
               >
                 Share on WhatsApp
               </a>
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText(`My FutureScan prophecy: "${result.roastText}" 😂 Try yours 👇 ${appUrl}`);
+                  navigator.clipboard.writeText(`My prophecy: "${result.roastText}" 😂 Try yours 👇 ${appUrl}`);
                   setCopied(true);
                   setTimeout(() => setCopied(false), 2000);
                 }}
                 className="px-6 py-3 bg-secondary text-foreground rounded-lg hover:bg-secondary/80 transition-colors"
               >
-                {copied ? "Copied! ✅" : "Copy for Instagram"}
+                {copied ? "Copied! ✅" : "📋 Copy Text"}
               </button>
             </div>
 
