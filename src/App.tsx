@@ -8,12 +8,14 @@ import Scan from "./pages/Scan";
 import LoveScanner from "./pages/LoveScanner";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
+import AuraHeader from "./components/AuraHeader";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
+      <AuraHeader />
       <Toaster />
       <Sonner />
       <HashRouter>

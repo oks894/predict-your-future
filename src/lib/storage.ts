@@ -22,6 +22,29 @@ export function getFirstUseTimestamp(): number | null {
   return val ? parseInt(val, 10) : null;
 }
 
+const AURA_KEY = "futurescan_aura";
+
+export function getAura(): number {
+  const val = localStorage.getItem(AURA_KEY);
+  return val ? parseInt(val, 10) : 100;
+}
+
+export function addAura(points: number): number {
+  const current = getAura();
+  const newAura = current + points;
+  localStorage.setItem(AURA_KEY, newAura.toString());
+  window.dispatchEvent(new Event("auraChanged"));
+  return newAura;
+}
+
+export function getAuraRank(points: number): string {
+  if (points >= 200) return "👑 Cosmic Sigma";
+  if (points >= 100) return "✨ Aura Intact";
+  if (points >= 50) return "😬 Aura Cracking";
+  if (points >= 0) return "💔 Aura Shattered";
+  return "💀 Aura Deleted";
+}
+
 export function setFirstUseTimestamp() {
   if (!getFirstUseTimestamp()) {
     localStorage.setItem(FIRST_USE_KEY, Date.now().toString());

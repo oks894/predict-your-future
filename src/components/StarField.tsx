@@ -30,6 +30,15 @@ const StarField = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const t = Date.now() / 1000;
       stars.forEach(s => {
+        // Drifting effect: Update x and y position slowly
+        s.y -= s.speed;
+        s.x += Math.sin(t + s.phase) * 0.2;
+        
+        // Loop particles to bottom if out of frame
+        if (s.y < 0) s.y = canvas.height;
+        if (s.x < 0) s.x = canvas.width;
+        if (s.x > canvas.width) s.x = 0;
+
         const flicker = 0.5 + 0.5 * Math.sin(t * s.speed * 3 + s.phase);
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
@@ -46,7 +55,7 @@ const StarField = () => {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0" />;
+  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 opacity-80" />;
 };
 
 export default StarField;

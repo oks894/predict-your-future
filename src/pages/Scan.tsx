@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import html2canvas from "html2canvas";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { addEntry, generateGenZRoast, isExpired, getTier } from "@/lib/storage";
+import { addEntry, generateGenZRoast, isExpired, getTier, addAura } from "@/lib/storage";
 import { playEerieScanSound, playDunDunDuuun, playSadTrombone } from "@/lib/audio";
 import type { ScanEntry } from "@/lib/storage";
 import StarField from "@/components/StarField";
@@ -35,6 +35,7 @@ const Scan = () => {
   const [copied, setCopied] = useState(false);
   const [cameraError, setCameraError] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [isCapturing, setIsCapturing] = useState(false);
 
   // T&C state (Session storage means it resets every time they close the tab)
   const [showTerms, setShowTerms] = useState(false);
@@ -169,6 +170,9 @@ const Scan = () => {
       roastPercentage: gen.percentage,
     };
     
+    // Add success aura points
+    addAura(15);
+    
     setLoadingProgress(0);
     setLoadingMsg(0);
     setStep("loading");
@@ -177,22 +181,27 @@ const Scan = () => {
     setResult(entry);
   };
 
-  const downloadCardAsImage = async () => {
-    const card = document.getElementById("prophecy-card");
-    if (!card) return;
-    try {
-      const canvas = await html2canvas(card, {
-        backgroundColor: "#1a0a2e",
-        scale: 2,
-        useCORS: true,
-      });
-      const link = document.createElement("a");
-      link.download = `predictyourfuture-${formData.name || "prophecy"}.png`;
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-    } catch (err) {
-      console.error("Image export error:", err);
-    }
+  const downloadCardAsImage = () => {
+    setIsCapturing(true);
+    setTimeout(async () => {
+      const card = document.getElementById("prophecy-card");
+      if (!card) return;
+      try {
+        const canvas = await html2canvas(card, {
+          backgroundColor: "#1a0a2e",
+          scale: 2,
+          useCORS: true,
+        });
+        const link = document.createElement("a");
+        link.download = `predictyourfuture-${formData.name || "prophecy"}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      } catch (err) {
+        console.error("Image export error:", err);
+      } finally {
+        setIsCapturing(false);
+      }
+    }, 100);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -287,7 +296,8 @@ const Scan = () => {
         {step === "capture" && (
           <div className="text-center">
             <h2 className="font-heading text-2xl text-primary glow-gold mb-6">Scanning Your Face...</h2>
-            <div className="relative mx-auto w-72 h-72 rounded-full overflow-hidden border-4 border-primary/50 glow-box-gold">
+            <div className={`transition-transform duration-1000 ${countdown < 2 ? '-translate-y-4 animate-float' : ''}`}>
+              <div className="relative mx-auto w-72 h-72 rounded-full overflow-hidden border-4 border-primary/50 glow-box-gold">
               {cameraError ? (
                 <div className="w-full h-full flex flex-col items-center justify-center bg-secondary/50">
                   <p className="text-4xl mb-2">🔮</p>
@@ -301,8 +311,10 @@ const Scan = () => {
                 <div className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent animate-scan-line" />
               </div>
             </div>
-            <p className="mt-6 text-primary font-heading text-4xl">{countdown}</p>
-            <p className="text-muted-foreground text-sm mt-2">Hold still... scanning biometrics</p>
+            <div className={`transition-all duration-1000 ${countdown < 2 ? 'opacity-0' : 'opacity-100'}`}>
+              <p className="mt-6 text-primary font-heading text-4xl">{countdown}</p>
+              <p className="text-muted-foreground text-sm mt-2">Hold still... scanning biometrics</p>
+            </div>
           </div>
         )}
 
@@ -414,30 +426,42 @@ const Scan = () => {
         {step === "result" && result && (
           <div className="text-center">
             <h2 className="font-heading text-2xl text-primary glow-gold mb-6">Your Roasted Meme</h2>
+            <p className="text-muted-foreground text-sm mb-6 animate-float-slow">Your dignity has left the atmosphere 🚀</p>
 
-            <div
-              id="prophecy-card"
-              className="mx-auto max-w-sm p-6 rounded-xl bg-gradient-to-b from-secondary to-card border border-primary/30 glow-box-gold"
-            >
-              <div className="flex justify-center items-center gap-2 mb-4">
-                <img
-                  src={result.facePhoto}
-                  alt={result.name}
-                  className="w-20 h-20 rounded-full border-2 border-primary object-cover"
-                />
-                {result.crushPhoto ? (
-                  <>
-                    <span className="text-2xl animate-pulse">💔</span>
+            <div className="relative animate-float-slow mx-auto max-w-sm">
+              {/* Particle Escaping Auras */}
+              <div className="absolute inset-0 pointer-events-none z-0">
+                <div className="absolute top-1/2 left-1/4 w-4 h-4 rounded-full bg-accent/40 blur-sm animate-drift" style={{ animationDelay: '0s' }}></div>
+                <div className="absolute top-3/4 right-1/4 w-3 h-3 rounded-full bg-primary/40 blur-sm animate-drift" style={{ animationDelay: '1s' }}></div>
+                <div className="absolute top-1/4 left-3/4 w-6 h-6 rounded-full bg-accent/20 blur-md animate-drift" style={{ animationDelay: '2s' }}></div>
+              </div>
+
+              <div
+                id="prophecy-card"
+                className="relative z-10 p-6 rounded-xl bg-gradient-to-b from-secondary to-card border border-primary/30 glow-box-gold overflow-hidden"
+              >
+                <div className="relative flex justify-center items-center h-32 mb-6">
+                  {/* Crush Photo as the Burning Planet Core */}
+                  {result.crushPhoto ? (
                     <img
                       src={result.crushPhoto}
                       alt={result.crushName}
-                      className="w-20 h-20 rounded-full border-2 border-accent object-cover"
+                      className="w-24 h-24 rounded-full border-2 border-accent object-cover z-0 shadow-[0_0_30px_10px_rgba(255,80,0,0.4)]"
                     />
-                  </>
-                ) : (
-                  <span className="text-2xl animate-pulse">🔮</span>
-                )}
-              </div>
+                  ) : (
+                    <div className="w-24 h-24 rounded-full border-2 border-accent bg-background shadow-[0_0_30px_10px_rgba(255,80,0,0.4)] flex items-center justify-center">
+                      <span className="text-3xl animate-pulse">🔮</span>
+                    </div>
+                  )}
+
+                  {/* User Photo Orbiting like Debris */}
+                  <img
+                    src={result.facePhoto}
+                    alt={result.name}
+                    className={`absolute top-1/2 left-1/2 w-16 h-16 -ml-8 -mt-8 rounded-full border-2 border-primary object-cover z-20 ${!isCapturing ? 'animate-orbit' : 'translate-x-12 translate-y-12'}`}
+                  />
+                </div>
+
               <h3 className="font-heading text-xl text-primary mb-1">{result.name}</h3>
               <p className="text-muted-foreground text-sm mb-4">Age {result.age} • Crushing on {result.crushName}</p>
               <div className="flex flex-col gap-3 text-left">
@@ -448,13 +472,14 @@ const Scan = () => {
                   return (
                     <div 
                       key={idx} 
-                      className={`p-4 rounded-xl border shadow-sm ${
+                      className={`p-4 rounded-xl border shadow-sm animate-shatter ${
                         isSystemScore 
                           ? 'bg-primary/20 border-primary text-primary font-bold text-center glow-gold uppercase tracking-wide' 
                           : isTimer
                           ? 'bg-red-500/10 border-red-500/50 text-red-500 font-bold text-center animate-pulse'
                           : 'bg-background/80 border-border text-foreground text-base leading-relaxed italic'
                       }`}
+                      style={{ animationDelay: `${idx * 0.2}s` }}
                     >
                       {part.trim().replace(/^\[|\]$/g, '')}
                     </div>
@@ -469,6 +494,7 @@ const Scan = () => {
                   <span className="text-sm">🔮</span> PREDICTYOURFUTURE.NET
                 </div>
               </div>
+            </div>
             </div>
 
             <div className="flex flex-col gap-3 justify-center mt-8">

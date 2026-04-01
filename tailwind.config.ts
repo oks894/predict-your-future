@@ -81,10 +81,37 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "float": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
+        "float-alt": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(12px) translateX(-5px)" },
+        },
+        "orbit": {
+          "0%": { transform: "rotate(0deg) translate(80px) rotate(0deg)" },
+          "100%": { transform: "rotate(360deg) translate(80px) rotate(-360deg)" },
+        },
+        "shatter-text": {
+          "0%": { transform: "translateY(-50px) scale(1.1)", opacity: "0" },
+          "40%": { transform: "translateY(5px) scale(0.95)", opacity: "1" },
+          "100%": { transform: "translateY(0) scale(1)", opacity: "1" },
+        },
+        "drift": {
+          "0%": { transform: "translateY(0)", opacity: "1" },
+          "100%": { transform: "translateY(-150px) translateX(20px)", opacity: "0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "float-slow": "float 6s ease-in-out infinite",
+        "float-medium": "float 4s ease-in-out infinite",
+        "float-alt": "float-alt 7s ease-in-out infinite",
+        "orbit": "orbit 15s linear infinite",
+        "shatter": "shatter-text 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards",
+        "drift": "drift 4s linear forwards",
       },
     },
   },

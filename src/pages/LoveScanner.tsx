@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import html2canvas from "html2canvas";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { addEntry, generateGenZRoast, isExpired, getTier } from "@/lib/storage";
+import { addEntry, generateGenZRoast, isExpired, getTier, addAura } from "@/lib/storage";
 import { playEerieScanSound, playDunDunDuuun, playSadTrombone } from "@/lib/audio";
 import type { ScanEntry } from "@/lib/storage";
 import StarField from "@/components/StarField";
@@ -171,6 +171,9 @@ const LoveScanner = () => {
       scanType: 'love',
       roastPercentage: gen.percentage,
     };
+    
+    // Gain Aura Points for taking a challenge
+    addAura(15);
     
     setLoadingProgress(0);
     setLoadingMsg(0);
