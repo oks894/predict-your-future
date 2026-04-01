@@ -299,7 +299,7 @@ const IG_STORAGE_KEY = 'admin_ig_id';
 
 // Sync getters use localStorage as cache (set by admin on their device or loaded from Supabase)
 export function getAdminUpiId(): string {
-  return localStorage.getItem(UPI_STORAGE_KEY) || '';
+  return localStorage.getItem(UPI_STORAGE_KEY) || 'admin@okicici'; // Hardcoded default
 }
 
 export function setAdminUpiId(upiId: string): void {
@@ -309,7 +309,7 @@ export function setAdminUpiId(upiId: string): void {
 }
 
 export function getAdminIgAccount(): string {
-  return localStorage.getItem(IG_STORAGE_KEY) || '';
+  return localStorage.getItem(IG_STORAGE_KEY) || '@itsnextgenfounder'; // Hardcoded default
 }
 
 export function setAdminIgAccount(igHandle: string): void {
