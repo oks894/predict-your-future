@@ -102,6 +102,24 @@ const Scan = () => {
     setStep("result");
   };
 
+  const downloadCardAsImage = async () => {
+    const card = document.getElementById("prophecy-card");
+    if (!card) return;
+    try {
+      const canvas = await html2canvas(card, {
+        backgroundColor: "#1a0a2e",
+        scale: 2,
+        useCORS: true,
+      });
+      const link = document.createElement("a");
+      link.download = `april-fools-${formData.name || "roast"}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    } catch (err) {
+      console.error("Image export error:", err);
+    }
+  };
+
   if (isExpired()) return <ExpiryGate />;
 
   const appUrl = window.location.origin;
