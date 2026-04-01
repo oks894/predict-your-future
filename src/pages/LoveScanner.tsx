@@ -441,8 +441,23 @@ const LoveScanner = () => {
               </div>
               <h3 className="font-heading text-xl text-primary mb-1">{result.name}</h3>
               <p className="text-muted-foreground text-sm mb-4">Age {result.age} • Crushing on {result.crushName}</p>
-              <div className="p-4 rounded-lg bg-background/50 border border-border">
-                <p className="text-foreground text-lg italic">"{result.roastText}"</p>
+              <div className="flex flex-col gap-3 text-left">
+                {result.roastText.split('\n\n').map((part, idx) => {
+                  if (!part.trim()) return null;
+                  const isSystemScore = part.includes("[ SYSTEM RATING:");
+                  return (
+                    <div 
+                      key={idx} 
+                      className={`p-4 rounded-xl border shadow-sm ${
+                        isSystemScore 
+                          ? 'bg-accent/20 border-accent text-accent font-bold text-center glow-gold uppercase tracking-wide' 
+                          : 'bg-background/80 border-border text-foreground text-base leading-relaxed italic'
+                      }`}
+                    >
+                      {part.trim().replace(/^\[|\]$/g, '')}
+                    </div>
+                  );
+                })}
               </div>
               <p className="text-muted-foreground text-xs mt-3">— Predict Your Future™ 🤡 Happy April Fools'</p>
               <p className="text-muted-foreground text-xs">@itsnextgenfounder</p>
