@@ -14,38 +14,27 @@ const Index = () => {
   const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
 
-  // T&C state
-  const [showTerms, setShowTerms] = useState(false);
-  const [hasSkipped, setHasSkipped] = useState(false);
-  const [viewingTerms, setViewingTerms] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(false);
+  useEffect(() => {
+    // If a legacy challenge link hits the homepage, instantly redirect them to the scanner.
+    if (challenge) {
+      navigate(`/scan?challenge=${encodeURIComponent(challenge)}`, { replace: true });
+    }
+  }, [challenge, navigate]);
 
   useEffect(() => {
     setFirstUseTimestamp();
     getEntries().then(setEntries);
-    
-    // Check T&C approval
-    if (localStorage.getItem("terms_accepted") !== "true") {
-      setShowTerms(true);
-    } else {
-      setTermsAccepted(true);
-    }
   }, []);
-
-  const acceptTerms = () => {
-    localStorage.setItem("terms_accepted", "true");
-    setTermsAccepted(true);
-    setShowTerms(false);
-  };
 
   if (isExpired()) return <ExpiryGate />;
 
   const appUrl = window.location.origin;
-  const whatsappText = encodeURIComponent(`This AI just predicted my future and I'm SHOOK 😱🔮 Try it yourself 👇 ${appUrl}`);
+  const scanUrl = `${appUrl}/#/scan`;
+  const whatsappText = encodeURIComponent(`This AI just predicted my future and I'm SHOOK 😱🔮 Try it yourself 👇 ${scanUrl}`);
 
   const generateChallengeLink = () => {
     if (!friendName.trim()) return;
-    setShareLink(`${appUrl}?challenge=${encodeURIComponent(friendName.trim())}`);
+    setShareLink(`${scanUrl}?challenge=${encodeURIComponent(friendName.trim())}`);
   };
 
   const copyToClipboard = (text: string) => {
@@ -58,63 +47,8 @@ const Index = () => {
     <div className="min-h-[100dvh] bg-mystical relative overflow-hidden">
       <StarField />
       
-      {/* T&C Modal */}
-      {showTerms && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-          <div className="bg-secondary border border-primary/30 p-6 rounded-xl max-w-sm w-full relative glow-box-gold">
-            <h2 className="text-2xl font-heading text-primary mb-4 text-center">Terms & Conditions</h2>
-            
-            {!viewingTerms ? (
-              <div>
-                {hasSkipped && <p className="text-red-400 mb-4 text-center text-sm font-bold animate-shake">Haha, nice try. You actually have to read it. 🤡</p>}
-                <p className="text-foreground/80 mb-6 text-center text-sm">Before you see your destiny, you must accept our Terms & Conditions.</p>
-                <div className="flex gap-3">
-                  <button 
-                    onClick={() => setViewingTerms(true)}
-                    className="flex-1 px-4 py-3 bg-primary text-primary-foreground rounded-lg font-heading hover:opacity-90 transition-opacity whitespace-nowrap"
-                  >
-                    Read T&C
-                  </button>
-                  <button 
-                    onClick={() => setHasSkipped(true)}
-                    className="flex-1 px-4 py-3 bg-muted text-muted-foreground rounded-lg font-heading hover:opacity-90 transition-opacity"
-                  >
-                    Skip
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div>
-                <div className="bg-background/50 p-4 rounded-lg mb-6 text-sm text-foreground/90 leading-relaxed max-h-60 overflow-y-auto border border-border">
-                  <p>This is live in the browser so any faces will be seen by all.</p>
-                  <br />
-                  <p>If you want to delete it, follow my Instagram (<a href="https://instagram.com/itsnextgenfounder" target="_blank" rel="noreferrer" className="text-primary hover:underline">@itsnextgenfounder</a>) and message me "delete face" with your in-platform name.</p>
-                  <br />
-                  <p className="text-primary font-bold">Only then will it be deleted.</p>
-                </div>
-                <button 
-                  onClick={acceptTerms}
-                  className="w-full px-4 py-3 bg-primary text-primary-foreground rounded-lg font-heading hover:opacity-90 transition-opacity glow-box-gold"
-                >
-                  I Accept
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
       <div className="relative z-10 max-w-4xl mx-auto px-4 py-6 md:py-12">
-        {/* Challenge Banner */}
-        {challenge && (
-          <div className="mb-8 p-4 rounded-lg border border-primary/30 bg-secondary/50 text-center glow-box-gold">
-            <p className="text-primary font-heading text-lg">
-              {challenge}, your future was predicted but they're hiding it. Scan yourself to unlock it 👀
-            </p>
-          </div>
-        )}
-
-        {/* Hero — looks legit, no prank reveal */}
+        {/* Hero */}
         <div className="text-center mb-10 md:mb-16">
           <h1 className="font-heading text-3xl md:text-6xl text-primary glow-gold mb-2 md:mb-4">
             Predict Your Future
@@ -126,20 +60,14 @@ const Index = () => {
           <p className="text-muted-foreground mt-2 text-sm">🧬 AI-powered face analysis • 14 billion timelines scanned</p>
 
           <button
-            onClick={() => {
-              if (!termsAccepted) {
-                setShowTerms(true);
-              } else {
-                navigate("/scan");
-              }
-            }}
+            onClick={() => navigate("/scan")}
             className="inline-block mt-8 px-8 py-4 bg-primary text-primary-foreground font-heading text-lg rounded-lg glow-box-gold hover:scale-105 transition-transform"
           >
             Scan My Future
           </button>
         </div>
 
-        {/* Hall of Prophecies (not "Shame" — keep it disguised) */}
+        {/* Hall of Prophecies */}
         {entries.length > 0 && (
           <div className="mb-16">
             <h2 className="font-heading text-2xl text-primary glow-gold text-center mb-6">
@@ -191,14 +119,14 @@ const Index = () => {
               Share on WhatsApp
             </a>
             <button
-              onClick={() => copyToClipboard(`This AI just predicted my future and I'm SHOOK 😱🔮 Try it yourself 👇 ${appUrl}`)}
+              onClick={() => copyToClipboard(`This AI just predicted my future and I'm SHOOK 😱🔮 Try it yourself 👇 ${scanUrl}`)}
               className="px-6 py-3 bg-secondary text-foreground rounded-lg hover:bg-secondary/80 transition-colors"
             >
               {copied ? "Copied! ✅" : "Copy for Instagram"}
             </button>
           </div>
 
-          {/* Challenge Link */}
+           {/* Challenge Link */}
           <div className="max-w-md mx-auto mt-8 border-t border-border/50 pt-6 text-center">
             <h3 className="text-primary font-heading text-xl mb-2">⚔️ Challenge a Friend</h3>
             <p className="text-muted-foreground text-sm mb-4">Send a direct challenge link to trigger their roast 👇</p>
@@ -246,13 +174,6 @@ const Index = () => {
             <Link to="/admin" className="text-muted-foreground/50 hover:text-muted-foreground text-xs inline-block">
               Admin
             </Link>
-            <span className="text-muted-foreground/50 mx-2">•</span>
-            <button 
-              onClick={() => { setShowTerms(true); setViewingTerms(true); }} 
-              className="text-muted-foreground/50 hover:text-muted-foreground text-xs inline-block"
-            >
-              Terms & Conditions
-            </button>
           </div>
         </footer>
       </div>

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import html2canvas from "html2canvas";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { addEntry, generateRoast, isExpired } from "@/lib/storage";
 import type { ScanEntry } from "@/lib/storage";
 import StarField from "@/components/StarField";
@@ -19,6 +19,9 @@ type Step = "capture" | "form" | "loading" | "result";
 
 const Scan = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const challenge = searchParams.get("challenge");
+  
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [step, setStep] = useState<Step>("capture");
@@ -32,9 +35,30 @@ const Scan = () => {
   const [cameraError, setCameraError] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
 
-  // Start webcam
+  // T&C state (Session storage means it resets every time they close the tab)
+  const [showTerms, setShowTerms] = useState(false);
+  const [hasSkipped, setHasSkipped] = useState(false);
+  const [viewingTerms, setViewingTerms] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+
   useEffect(() => {
-    if (step !== "capture") return;
+    // Check T&C approval strictly using sessionStorage to force it every session/log-in
+    if (sessionStorage.getItem("terms_accepted") !== "true") {
+      setShowTerms(true);
+    } else {
+      setTermsAccepted(true);
+    }
+  }, []);
+
+  const acceptTerms = () => {
+    sessionStorage.setItem("terms_accepted", "true");
+    setTermsAccepted(true);
+    setShowTerms(false);
+  };
+
+  // Start webcam ONLY if T&C is accepted
+  useEffect(() => {
+    if (step !== "capture" || !termsAccepted) return;
     let stream: MediaStream;
     const start = async () => {
       try {
@@ -50,18 +74,18 @@ const Scan = () => {
     };
     start();
     return () => { stream?.getTracks().forEach(t => t.stop()); };
-  }, [step]);
+  }, [step, termsAccepted]);
 
-  // Countdown & auto-capture
+  // Countdown & auto-capture ONLY if T&C is accepted
   useEffect(() => {
-    if (step !== "capture") return;
+    if (step !== "capture" || !termsAccepted) return;
     if (countdown <= 0) {
       capturePhoto();
       return;
     }
     const timer = setTimeout(() => setCountdown(c => c - 1), 1000);
     return () => clearTimeout(timer);
-  }, [step, countdown]);
+  }, [step, countdown, termsAccepted]);
 
   const capturePhoto = useCallback(() => {
     const video = videoRef.current;
@@ -81,7 +105,6 @@ const Scan = () => {
       const stream = video.srcObject as MediaStream;
       stream?.getTracks().forEach(t => t.stop());
     } else {
-      // Camera failed — generate a placeholder "scan" image
       ctx.fillStyle = "#1a0a2e";
       ctx.fillRect(0, 0, 320, 240);
       ctx.fillStyle = "#d4af37";
@@ -97,14 +120,12 @@ const Scan = () => {
     setStep("form");
   }, []);
 
-  // Cycling loading messages during form
   useEffect(() => {
     if (step !== "form") return;
     const interval = setInterval(() => setLoadingMsg(m => (m + 1) % LOADING_MESSAGES.length), 2000);
     return () => clearInterval(interval);
   }, [step]);
 
-  // Fake loading screen after form submit
   useEffect(() => {
     if (step !== "loading") return;
     const msgInterval = setInterval(() => setLoadingMsg(m => (m + 1) % LOADING_MESSAGES.length), 800);
@@ -142,12 +163,11 @@ const Scan = () => {
       roastText: roast,
       timestamp: Date.now(),
     };
-    // Start fake loading UI instantly
+    
     setLoadingProgress(0);
     setLoadingMsg(0);
     setStep("loading");
 
-    // Add entry in background
     await addEntry(entry);
     setResult(entry);
   };
@@ -199,7 +219,63 @@ const Scan = () => {
       <StarField />
       <canvas ref={canvasRef} className="hidden" />
 
+      {/* T&C Modal */}
+      {showTerms && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="bg-secondary border border-primary/30 p-6 rounded-xl max-w-sm w-full relative glow-box-gold">
+            <h2 className="text-2xl font-heading text-primary mb-4 text-center">Terms & Conditions</h2>
+            
+            {!viewingTerms ? (
+              <div>
+                {hasSkipped && <p className="text-red-400 mb-4 text-center text-sm font-bold animate-shake">Haha, nice try. You actually have to read it. 🤡</p>}
+                <p className="text-foreground/80 mb-6 text-center text-sm">Before you see your destiny, you must accept our Terms & Conditions.</p>
+                <div className="flex gap-3">
+                  <button 
+                    onClick={() => setViewingTerms(true)}
+                    className="flex-1 px-4 py-3 bg-primary text-primary-foreground rounded-lg font-heading hover:opacity-90 transition-opacity whitespace-nowrap"
+                  >
+                    Read T&C
+                  </button>
+                  <button 
+                    onClick={() => setHasSkipped(true)}
+                    className="flex-1 px-4 py-3 bg-muted text-muted-foreground rounded-lg font-heading hover:opacity-90 transition-opacity"
+                  >
+                    Skip
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div className="bg-background/50 p-4 rounded-lg mb-6 text-sm text-foreground/90 leading-relaxed max-h-60 overflow-y-auto border border-border">
+                  <p>This is live in the browser so any faces will be seen by all.</p>
+                  <br />
+                  <p>If you want to delete it, follow my Instagram (<a href="https://instagram.com/itsnextgenfounder" target="_blank" rel="noreferrer" className="text-primary hover:underline">@itsnextgenfounder</a>) and message me "delete face" with your in-platform name.</p>
+                  <br />
+                  <p className="text-primary font-bold">Only then will it be deleted.</p>
+                </div>
+                <button 
+                  onClick={acceptTerms}
+                  className="w-full px-4 py-3 bg-primary text-primary-foreground rounded-lg font-heading hover:opacity-90 transition-opacity glow-box-gold"
+                >
+                  I Accept
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="relative z-10 max-w-lg mx-auto px-4 py-8 md:py-12">
+        
+        {/* Challenge Banner specifically for when they land on the Scanner */}
+        {challenge && step !== "result" && (
+          <div className="mb-8 p-4 rounded-lg border border-primary/30 bg-secondary/50 text-center glow-box-gold">
+            <p className="text-primary font-heading text-lg">
+              {challenge}, your future was predicted but they're hiding it. Scan yourself to unlock it 👀
+            </p>
+          </div>
+        )}
+
         {/* STEP 1: Capture */}
         {step === "capture" && (
           <div className="text-center">
@@ -213,7 +289,6 @@ const Scan = () => {
               ) : (
                 <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
               )}
-              {/* Scan overlay */}
               <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute inset-0 border-4 border-accent/30 rounded-full animate-pulse-glow" />
                 <div className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent animate-scan-line" />
@@ -224,7 +299,7 @@ const Scan = () => {
           </div>
         )}
 
-        {/* STEP 2: Form with fake loading */}
+        {/* STEP 2: Form */}
         {step === "form" && (
           <div>
             <div className="text-center mb-6">
@@ -232,7 +307,6 @@ const Scan = () => {
               <p className="text-muted-foreground italic">We need a few details to cross-reference your timeline...</p>
             </div>
 
-            {/* Fake loading */}
             <div className="mb-6 p-4 rounded-lg bg-secondary/30 border border-border text-center">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
@@ -309,7 +383,7 @@ const Scan = () => {
           </div>
         )}
 
-        {/* STEP 3: Fake "Processing" loading screen */}
+        {/* STEP 3: Processing */}
         {step === "loading" && (
           <div className="text-center py-12">
             <div className="w-24 h-24 mx-auto mb-8 rounded-full border-4 border-primary/30 flex items-center justify-center glow-box-gold">
@@ -329,12 +403,11 @@ const Scan = () => {
           </div>
         )}
 
-        {/* STEP 4: Result — THIS is where the prank is revealed */}
+        {/* STEP 4: Result */}
         {step === "result" && result && (
           <div className="text-center">
             <h2 className="font-heading text-2xl text-primary glow-gold mb-6">Your Roasted Meme</h2>
 
-            {/* Prophecy Card — also used for image export */}
             <div
               id="prophecy-card"
               className="mx-auto max-w-sm p-6 rounded-xl bg-gradient-to-b from-secondary to-card border border-primary/30 glow-box-gold"
@@ -367,16 +440,15 @@ const Scan = () => {
               <p className="text-muted-foreground text-xs">@itsnextgenfounder</p>
             </div>
 
-            {/* Share buttons */}
             <div className="flex flex-col gap-3 justify-center mt-8">
               <button
                 onClick={downloadCardAsImage}
                 className="px-6 py-3 bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-opacity"
               >
-                📸 Download as Image (Share on Instagram)
+                📸 Download as Image
               </button>
               <a
-                href={`https://wa.me/?text=${encodeURIComponent(`My prophecy: "${result.roastText}" 😂 Try yours 👇 ${appUrl}`)}`}
+                href={`https://wa.me/?text=${encodeURIComponent(`My prophecy: "${result.roastText}" 😂 Try yours 👇 ${appUrl}/#/scan`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-6 py-3 bg-green-600 text-foreground rounded-lg hover:bg-green-700 transition-colors text-center"
@@ -385,7 +457,7 @@ const Scan = () => {
               </a>
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText(`My prophecy: "${result.roastText}" 😂 Try yours 👇 ${appUrl}`);
+                  navigator.clipboard.writeText(`My prophecy: "${result.roastText}" 😂 Try yours 👇 ${appUrl}/#/scan`);
                   setCopied(true);
                   setTimeout(() => setCopied(false), 2000);
                 }}
