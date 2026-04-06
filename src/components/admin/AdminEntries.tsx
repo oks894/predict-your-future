@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { ShieldAlert, Trash2, Edit2, Download, Search, ImageIcon } from "lucide-react";
 import type { ScanEntry } from "@/lib/storage";
 import { updateEntry, deleteEntry, exportToCSV } from "@/lib/storage";
-import { generateAuraCardBlob } from "@/components/AuraCard";
 
 interface Props {
   entries: ScanEntry[];
@@ -233,28 +232,8 @@ const AdminEntries = ({ entries, isLoading, onRefresh }: Props) => {
                       <span className="text-muted-foreground text-[10px] font-mono uppercase tracking-widest">Legacy</span>
                     )}
                   </td>
-                  <td className="py-4 px-6 text-right whitespace-nowrap space-x-2">
-                    <button 
-                      onClick={async () => {
-                        const oldBg = document.body.style.background;
-                        try {
-                          const url = await generateAuraCardBlob(e, e.aura || 0, 'post');
-                          const a = document.createElement('a');
-                          a.href = url;
-                          a.download = `roast-${e.name}.png`;
-                          a.click();
-                        } catch (err) {
-                          console.error(err);
-                        } finally {
-                          document.body.style.background = oldBg;
-                        }
-                      }}
-                      className="p-3 bg-white/5 border border-white/10 text-muted-foreground hover:text-white hover:bg-white/10 rounded-xl transition-all"
-                      title="Download Neural Image"
-                    >
-                      <ImageIcon className="w-4 h-4" />
-                    </button>
-                    <button 
+                  <td className="py-4 px-6 text-right whitespace-nowrap space-x-2"> 
+                    <button
                       onClick={() => setEditingEntry(e)}
                       className="p-3 bg-white/5 border border-white/10 text-muted-foreground hover:text-primary hover:border-primary/30 hover:bg-primary/10 rounded-xl transition-all"
                       title="Deep Edit Prophecy"
