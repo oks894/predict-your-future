@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { getEntries, getSingles, getAdminUpiId, getAdminIgAccount, updateEntryDare, updateSingleDare, syncAdminConfig } from "@/lib/storage";
 import type { ScanEntry, SingleEntry } from "@/lib/storage";
+import html2canvas from "html2canvas";
 import StarField from "@/components/StarField";
 
 const Index = () => {
@@ -36,6 +37,38 @@ const Index = () => {
     getSingles().then(setSingles);
   }, []);
 
+  const downloadSingleAsImage = async (id: string, name: string) => {
+    const card = document.getElementById(`single-card-${id}`);
+    if (!card) return;
+    try {
+      const canvas = await html2canvas(card, {
+        backgroundColor: "#1a0a2e",
+        scale: 2,
+        useCORS: true,
+      });
+      const link = document.createElement("a");
+      link.download = `singles-market-${name}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    } catch (err) {
+      console.error("Image export error:", err);
+    }
+  };
+
+  const handleGlobalInvite = () => {
+    const shareText = `Are you soulmates or fully delusional? Use the AI Love Calculator to find out, or expose your single friends on the brutal public market 🔥👇\n${window.location.origin}`;
+    if (navigator.share) {
+      navigator.share({
+        title: 'Love Calculator & Singles Market',
+        text: shareText,
+        url: window.location.origin,
+      }).catch(console.error);
+    } else {
+      navigator.clipboard.writeText(shareText);
+      alert("Invite link copied to clipboard! Send it to your friends.");
+    }
+  };
+
   return (
     <div className="min-h-[100dvh] bg-mystical relative overflow-hidden flex flex-col justify-between">
       <StarField />
@@ -59,7 +92,15 @@ const Index = () => {
         </button>
       </div>
 
-      <div className="relative z-10 max-w-4xl mx-auto px-4 py-8 md:py-16 flex flex-col items-center justify-center flex-grow mt-12 sm:mt-0">
+      {/* Global Invite Button */}
+      <button
+        onClick={handleGlobalInvite}
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-gradient-to-r from-primary to-accent text-white px-6 py-3 rounded-full shadow-[0_0_20px_rgba(255,0,100,0.4)] flex items-center gap-2 hover:scale-105 transition-transform uppercase font-black tracking-widest text-xs"
+      >
+        <span className="text-lg">💌</span> Invite a Friend
+      </button>
+
+      <div className="relative z-10 max-w-4xl mx-auto px-4 py-8 md:py-16 flex flex-col items-center justify-center flex-grow mt-12 sm:mt-0 pb-20 mt-12 sm:pb-0">
         
         {/* If this is a shared link from a friend */}
         {sharedScore && p1 && p2 && (
@@ -198,10 +239,10 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 md:p-6">
+          <div className="flex-1 overflow-y-auto p-4 md:p-6 pb-24">
             <div className="max-w-6xl mx-auto grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               {singles.map((s) => (
-                <div key={s.id} className="bg-secondary/60 border border-white/10 rounded-3xl p-5 relative group flex flex-col shadow-2xl">
+                <div key={s.id} id={`single-card-${s.id}`} className="bg-secondary/60 border border-white/10 rounded-3xl p-5 relative group flex flex-col shadow-2xl">
                   {s.dareStatus === 'pending_removal' && (
                     <div className="absolute inset-0 z-10 bg-black/80 backdrop-blur-sm rounded-3xl flex flex-col items-center justify-center p-4 text-center">
                       <span className="text-4xl mb-2 animate-pulse">💸</span>
@@ -232,12 +273,20 @@ const Index = () => {
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => { setCowardSingleEntry(s); setPaymentClicked(false); setProofText(""); }}
-                    className="w-full py-3 bg-[#F43F5E]/10 hover:bg-[#F43F5E]/20 text-[#F43F5E] border border-[#F43F5E]/30 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors mt-auto"
-                  >
-                    Take Down Result
-                  </button>
+                  <div className="flex flex-col gap-2 mt-auto">
+                    <button
+                      onClick={() => downloadSingleAsImage(s.id, s.friendName)}
+                      className="w-full py-3 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
+                    >
+                      <span>📸</span> Share as Image
+                    </button>
+                    <button
+                      onClick={() => { setCowardSingleEntry(s); setPaymentClicked(false); setProofText(""); }}
+                      className="w-full py-3 bg-[#F43F5E]/10 hover:bg-[#F43F5E]/20 text-[#F43F5E] border border-[#F43F5E]/30 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors"
+                    >
+                      Take Down Profile
+                    </button>
+                  </div>
                 </div>
               ))}
               {singles.length === 0 && (
