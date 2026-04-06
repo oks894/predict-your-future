@@ -212,81 +212,73 @@ export async function getEntryById(id: string): Promise<ScanEntry | null> {
 // 🔥 DYNAMIC GENERATOR: 300+ COMBOS
 // ─────────────────────────────────────────────────────────────────────
 
-const HARD_OPENERS = [
+const BAD_OPENERS = [
   `{N}, let's just rip the band-aid off…`,
   `Listen closely {N}, because clearly nobody else tells you the truth…`,
   `We fed your data to our most advanced AI and it started laughing.`,
   `Not gonna lie {N}, this scan was physically painful to process.`,
-  `{N}, you typed that in with way too much confidence.`,
-  `Even the algorithm feels bad for you right now.`,
-  `Bro {N} really thought they had a chance 💀.`,
-  `I ran this simulation 14 billion times. You failed every single one.`,
-  `Look {N}, someone has to be honest with you…`,
-  `{C} would rather stare at a blank wall than look your way.`,
 ];
 
-const FUTURE_BODIES = [
-  `Your vibe is basically the human equivalent of a skipped YouTube ad.`,
-  `You dress like a random spawned NPC and flirt like a low-battery smoke detector.`,
-  `Your charisma level is stuck in airplane mode. Forever.`,
-  `If personality was a currency, you'd be in crippling debt.`,
-  `You're out here projecting main character energy but acting like an extra's understudy.`,
-  `You give off the exact energy of a "seen 3 weeks ago" message.`,
-  `Your entire aesthetic can be best described as "default settings."`,
-  `You're emotionally buffering and nobody is waiting for you to load.`,
-  `You have the romantic appeal of a wet sock on a Monday morning.`,
-  `Even your guardian angel is tired of watching you make these choices.`,
-  `It's giving "chronically online but zero social skills in real life."`,
-  `You're fighting demons, but it looks like the demons are winning easily.`,
-];
-
-const LOVE_BODIES = [
+const BAD_BODIES = [
   `You and {C}? Stop. You're not a red flag, you're the whole parade.`,
   `The only chemistry here is your phone overheating while you stalk their story.`,
   `{C} sees you as a younger sibling's annoying friend. At best.`,
   `You're romantically invested in a person who doesn't even know your last name.`,
   `This isn't love, you're just bored and delusional. 🤡`,
-  `{C}'s standards called. They said "{N} is exactly what we are avoiding."`,
-  `You're building castles on texts they haven't even read yet.`,
-  `If this relationship was a stock, Wall Street would warn against it.`,
-  `It's giving "situationship with my own imagination."`,
-  `You're chasing someone who wouldn't cross the street to give you WiFi.`,
-  `Your chances with {C} are lower than my battery percentage.`,
-  `The match probability is sitting at a solid Error 404: Hope Not Found.`,
-  `You two belong in different galaxies, emotionally and physically.`,
-  `Even autocorrect tries to stop you when you type {C}'s name.`,
 ];
 
-const HARD_CLOSERS = [
+const BAD_CLOSERS = [
   `Please reconsider all your life choices. 🛑`,
   `Touch grass immediately. 🌿`,
   `Self-awareness is free. Use it. 🪞`,
-  `Do better. Or at least try to. 📉`,
-  `Just log out for me real quick. 💻❌`,
-  `Respectfully, seek professional help. 🩺`,
-  `Therapy is calling. Pick up the phone. 📞`,
-  `The fact that you believed this would be positive is tragic. 🎭`,
-  `Anyway, good luck with all... that. 😬`,
-  `I'd say there's plenty of fish in the sea, but you can't even fish. 🎣`,
+];
+
+const GOOD_OPENERS = [
+  `{N}, the algorithm doesn't lie. I am genuinely impressed…`,
+  `Stop scrolling {N}. I just ran the numbers and this is crazy.`,
+  `Warning: Insanely high chemistry detected.`,
+];
+
+const GOOD_BODIES = [
+  `You and {C} are mathematically destined for each other. The facial symmetry alignment here is insane.`,
+  `This isn't a joke anymore. {C} is literally your soulmate based on our 14 billion timeline scan.`,
+  `Your vibes match flawlessly. It's giving main character couple energy.`,
+  `The algorithm is shipping you two so hard right now. This is a rare 1-in-a-million match.`,
+];
+
+const GOOD_CLOSERS = [
+  `Stop overthinking and just ask {C} out immediately. Do it now. 💍`,
+  `Slide into {C}'s DMs right this second. The math is on your side. 💌`,
+  `You literally have nothing to lose, go get {C}! 🔥`,
 ];
 
 export function getTier(percentage: number): string {
-  if (percentage >= 98) return "Legendary 💀";
-  if (percentage >= 95) return "Diamond Cooked 💎";
-  if (percentage >= 90) return "Platinum NPC 🏆";
-  if (percentage >= 85) return "Gold Clown 🤡";
-  if (percentage >= 80) return "Silver Delusional 🥈";
-  return "Bronze Embarrassment 🥉";
+  if (percentage >= 90) return "Destined Soulmates 💍";
+  if (percentage >= 75) return "High Chemistry 🔥";
+  if (percentage >= 50) return "Green Flag 🟢";
+  if (percentage >= 30) return "Friendzone Material 🧊";
+  if (percentage >= 15) return "Silver Delusional 🥈";
+  return "Bronze Clown 🤡";
 }
 
 export function generateGenZRoast(scanType: 'future' | 'love', name: string, crushName: string): { text: string, percentage: number } {
-  // Select components randomly
-  const opener = HARD_OPENERS[Math.floor(Math.random() * HARD_OPENERS.length)];
-  const bodies = scanType === 'future' ? FUTURE_BODIES : LOVE_BODIES;
-  const body = bodies[Math.floor(Math.random() * bodies.length)];
-  const closer = HARD_CLOSERS[Math.floor(Math.random() * HARD_CLOSERS.length)];
+  const percent = Math.floor(Math.random() * 100);
+  
+  let rawRoast = "";
+  let percentLabel = `${percent}% Compatibility Detected`;
 
-  let rawRoast = `${opener} ${body} ${closer}`;
+  if (percent > 50) {
+    const opener = GOOD_OPENERS[Math.floor(Math.random() * GOOD_OPENERS.length)];
+    const body = GOOD_BODIES[Math.floor(Math.random() * GOOD_BODIES.length)];
+    const closer = GOOD_CLOSERS[Math.floor(Math.random() * GOOD_CLOSERS.length)];
+    rawRoast = `${opener} ${body} ${closer}`;
+  } else {
+    const opener = BAD_OPENERS[Math.floor(Math.random() * BAD_OPENERS.length)];
+    const body = BAD_BODIES[Math.floor(Math.random() * BAD_BODIES.length)];
+    const closer = BAD_CLOSERS[Math.floor(Math.random() * BAD_CLOSERS.length)];
+    rawRoast = `${opener} ${body} ${closer}`;
+    percentLabel = `${percent}% Delusional Rating`;
+  }
   
   // Replace tokens
   rawRoast = rawRoast.replace(/\{N\}/g, name || 'bro');
@@ -296,22 +288,8 @@ export function generateGenZRoast(scanType: 'future' | 'love', name: string, cru
     rawRoast = rawRoast.replace(/\{C\}/g, 'literally anyone');
   }
 
-  // Generate harsh percentages
-  let percent = 0;
-  let percentLabel = "";
-  
-  if (scanType === 'love') {
-    // Brutal love percentages (high delusion rating)
-    percent = Math.floor(Math.random() * 20) + 80; // 80% to 99%
-    percentLabel = `${percent}% Delusional Level`;
-  } else {
-    // Brutal future percentages (high cringe/failure rating)
-    percent = Math.floor(Math.random() * 30) + 70; // 70% to 99%
-    percentLabel = `${percent}% Certified Cringe`;
-  }
-
-  // Prepend the score as a fake AI header (timer removed)
-  const finalText = `[ SYSTEM RATING: ${percentLabel} ]\n\n${rawRoast}`;
+  // Prepend the score as a fake AI header
+  const finalText = `[ AI VERDICT: ${percentLabel} ]\n\n${rawRoast}`;
 
   return { text: finalText, percentage: percent };
 }

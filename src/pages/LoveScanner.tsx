@@ -436,7 +436,7 @@ const LoveScanner = () => {
               <div className="flex flex-col gap-3 text-left">
                 {result.roastText.split('\n\n').map((part, idx) => {
                   if (!part.trim()) return null;
-                  const isSystemScore = part.includes("[ SYSTEM RATING:");
+                  const isSystemScore = part.includes("[ AI VERDICT:");
                   const isTimer = part.includes("⏳");
                   return (
                     <div 
@@ -465,37 +465,54 @@ const LoveScanner = () => {
             </div>
 
             <div className="flex flex-col gap-3 justify-center mt-8">
-              <button
-                onClick={downloadCardAsImage}
-                className="px-6 py-3 bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-opacity"
-              >
-                📸 Download as Image
-              </button>
+              <div className="bg-background/40 p-4 rounded-xl border border-primary/20 mb-2">
+                <h4 className="text-secondary-foreground font-bold mb-2">Dare your friends to try 😈</h4>
+                <div className="flex items-center gap-2">
+                  <input 
+                    readOnly 
+                    value={`${appUrl}/#/?sharedScore=${result.roastPercentage}&p1=${encodeURIComponent(result.name)}&p2=${encodeURIComponent(result.crushName)}`}
+                    className="flex-1 bg-black/40 border border-white/10 rounded px-3 py-2 text-xs text-muted-foreground truncate"
+                  />
+                  <button
+                    onClick={() => {
+                      const shareLink = `${appUrl}/#/?sharedScore=${result.roastPercentage}&p1=${encodeURIComponent(result.name)}&p2=${encodeURIComponent(result.crushName)}`;
+                      navigator.clipboard.writeText(shareLink);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    }}
+                    className="px-4 py-2 bg-primary/20 hover:bg-primary/40 text-primary border border-primary/30 rounded text-xs transition-colors shrink-0"
+                  >
+                    {copied ? "Copied!" : "Copy Link"}
+                  </button>
+                </div>
+              </div>
+
               <a
-                href={`https://wa.me/?text=${encodeURIComponent(`Nah the AI Love Calculator just humbled me so bad 😭😭 It said I'm ${result.roastPercentage}% Delusional thinking about ${result.crushName}! Check your compatibility before it's too late 👇\n${appUrl}/#/love`)}`}
+                href={`https://wa.me/?text=${encodeURIComponent(
+                  (result.roastPercentage || 0) > 50 
+                    ? `The AI Love Calculator said I'm ${result.roastPercentage}% Compatible with ${result.crushName} 🔥 Deal with it. Dare to check your own compatibility here 👇\n${appUrl}/#/?sharedScore=${result.roastPercentage}&p1=${encodeURIComponent(result.name)}&p2=${encodeURIComponent(result.crushName)}`
+                    : `Nah the AI Love Calculator just humbled me so bad 😭😭 It said I'm ${result.roastPercentage}% Delusional thinking about ${result.crushName}! Check your compatibility here 👇\n${appUrl}/#/?sharedScore=${result.roastPercentage}&p1=${encodeURIComponent(result.name)}&p2=${encodeURIComponent(result.crushName)}`
+                )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-6 py-3 bg-green-600 text-foreground rounded-lg hover:bg-green-700 transition-colors text-center"
+                className="px-6 py-4 bg-green-600 text-white font-bold rounded-xl hover:bg-green-500 transition-colors text-center w-full shadow-lg hover:scale-105 transform duration-200"
               >
-                Share on WhatsApp
+                Send Invite on WhatsApp
               </a>
+              
               <button
-                onClick={() => {
-                  navigator.clipboard.writeText(`Nah the AI Love Calculator just humbled me so bad 😭😭 It said I'm ${result.roastPercentage}% Delusional thinking about ${result.crushName}! Check your compatibility before it's too late 👇\n${appUrl}/#/love`);
-                  setCopied(true);
-                  setTimeout(() => setCopied(false), 2000);
-                }}
-                className="px-6 py-3 bg-secondary text-foreground rounded-lg hover:bg-secondary/80 transition-colors"
+                onClick={downloadCardAsImage}
+                className="px-6 py-3 bg-secondary text-foreground text-sm rounded-xl hover:opacity-90 transition-opacity w-full border border-border"
               >
-                {copied ? "Copied! ✅" : "📋 Copy Text"}
+                📸 Download Result Card
               </button>
             </div>
 
             <Link
               to="/"
-              className="inline-block mt-6 text-primary hover:underline font-heading"
+              className="inline-block mt-8 text-muted-foreground hover:text-primary transition-colors text-sm uppercase tracking-widest font-bold"
             >
-              ← Back to Home
+              ← Back to Main
             </Link>
           </div>
         )}
