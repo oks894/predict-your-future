@@ -100,6 +100,15 @@ const AdminEntries = ({ entries, isLoading, onRefresh }: Props) => {
               </div>
             </div>
 
+            <div className="mb-4">
+              <label className="block text-[10px] font-black tracking-widest text-primary/70 uppercase mb-2">Phone Number</label>
+              <input 
+                value={editingEntry.phoneNo || ''} 
+                onChange={e => setEditingEntry({...editingEntry, phoneNo: e.target.value})}
+                className="w-full bg-white/5 border border-white/10 px-4 py-3 rounded-xl text-foreground text-sm font-mono focus:outline-none focus:border-primary/50"
+              />
+            </div>
+
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-[10px] font-black tracking-widest text-primary/70 uppercase mb-2">Aura Override</label>
@@ -187,7 +196,7 @@ const AdminEntries = ({ entries, isLoading, onRefresh }: Props) => {
                       <img src={e.facePhoto} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-primary/40 shadow-[0_0_15px_rgba(230,194,122,0.3)]" loading="lazy" />
                       <div>
                         <p className="font-bold text-foreground font-heading tracking-wide">{e.name}</p>
-                        <p className="text-muted-foreground text-[10px] font-mono tracking-widest uppercase mt-1">Age {e.age}</p>
+                        <p className="text-muted-foreground text-[10px] font-mono tracking-widest uppercase mt-1">Age {e.age} {e.phoneNo && `• Ph: ${e.phoneNo}`}</p>
                       </div>
                     </div>
                   </td>

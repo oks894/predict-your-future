@@ -5,11 +5,12 @@ export type DareStatus = 'pending' | 'accepted' | 'chickened' | 'failed' | 'comp
 export interface ScanEntry {
   id: string;
   name: string;
-  age: number;
-  crushName: string;
-  crushAge: number;
-  facePhoto: string;
-  crushPhoto?: string;
+  age?: number;
+  crushName?: string;
+  crushAge?: number;
+  phoneNo?: string;
+  facePhoto: string | null;
+  crushPhoto?: string | null;
   roastText: string;
   timestamp: number;
   scanType?: string;

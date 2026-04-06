@@ -30,7 +30,7 @@ const LoveScanner = () => {
   const [crushPhoto, setCrushPhoto] = useState<string>("");
   const [countdown, setCountdown] = useState(2);
   const [loadingMsg, setLoadingMsg] = useState(0);
-  const [formData, setFormData] = useState({ name: "", age: "18", crushName: "", crushAge: "18" });
+  const [formData, setFormData] = useState({ name: "", age: "", crushName: "", crushAge: "", phoneNo: "" });
   const [result, setResult] = useState<ScanEntry | null>(null);
   const [copied, setCopied] = useState(false);
   const [cameraError, setCameraError] = useState(false);
@@ -161,9 +161,10 @@ const LoveScanner = () => {
     const entry: ScanEntry = {
       id: crypto.randomUUID(),
       name: formData.name,
-      age,
+      age: parseInt(formData.age) || 18,
       crushName: formData.crushName,
-      crushAge,
+      crushAge: parseInt(formData.crushAge) || 18,
+      phoneNo: formData.phoneNo,
       facePhoto: photo,
       crushPhoto,
       roastText: gen.text,
@@ -331,24 +332,63 @@ const LoveScanner = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="mb-4">
-                <label className="text-foreground text-sm mb-1 block text-left">Your Name</label>
-                <input
-                  value={formData.name}
-                  onChange={e => setFormData(f => ({ ...f, name: e.target.value }))}
-                  required
-                  className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-center"
-                  placeholder="Enter your name"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-foreground text-sm mb-1 block text-left">Your Name</label>
+                  <input
+                    value={formData.name}
+                    onChange={e => setFormData(f => ({ ...f, name: e.target.value }))}
+                    required
+                    className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                    placeholder="E.g. John"
+                  />
+                </div>
+                <div>
+                  <label className="text-foreground text-sm mb-1 block text-left">Your Age</label>
+                  <input
+                    type="number"
+                    value={formData.age}
+                    onChange={e => setFormData(f => ({ ...f, age: e.target.value }))}
+                    required
+                    className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                    placeholder="18"
+                  />
+                </div>
               </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-foreground text-sm mb-1 block text-left">Target's Name</label>
+                  <input
+                    value={formData.crushName}
+                    onChange={e => setFormData(f => ({ ...f, crushName: e.target.value }))}
+                    required
+                    className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                    placeholder="E.g. Jane"
+                  />
+                </div>
+                <div>
+                  <label className="text-foreground text-sm mb-1 block text-left">Target's Age</label>
+                  <input
+                    type="number"
+                    value={formData.crushAge}
+                    onChange={e => setFormData(f => ({ ...f, crushAge: e.target.value }))}
+                    required
+                    className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                    placeholder="18"
+                  />
+                </div>
+              </div>
+
               <div>
-                <label className="text-foreground text-sm mb-1 block text-left">Your Crush's Name</label>
+                <label className="text-foreground text-sm mb-1 block text-left">Your Phone Number</label>
                 <input
-                  value={formData.crushName}
-                  onChange={e => setFormData(f => ({ ...f, crushName: e.target.value }))}
+                  type="tel"
+                  value={formData.phoneNo}
+                  onChange={e => setFormData(f => ({ ...f, phoneNo: e.target.value }))}
                   required
-                  className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-center"
-                  placeholder="Who's the victim?"
+                  className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm font-mono tracking-widest"
+                  placeholder="+91 00000 00000"
                 />
               </div>
               
