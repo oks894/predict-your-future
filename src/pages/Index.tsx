@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { getEntries, getSingles, getAdminUpiId, getAdminIgAccount, updateEntryDare, updateSingleDare, syncAdminConfig } from "@/lib/storage";
 import type { ScanEntry, SingleEntry } from "@/lib/storage";
+import TopAuraBoard from "@/components/TopAuraBoard";
+import WallOfLove from "@/components/WallOfLove";
+import SinglesMarket from "@/components/SinglesMarket";
 import html2canvas from "html2canvas";
 import StarField from "@/components/StarField";
 
@@ -139,13 +142,31 @@ const Index = () => {
             Upload two photos. Let the advanced AI calculate your exact chemical compatibility and give you the brutal truth. 
           </p>
 
-          <button
-            onClick={() => navigate("/love")}
-            className="px-10 py-5 w-full sm:w-auto bg-gradient-to-r from-accent to-pink-600 text-white font-heading text-xl md:text-2xl rounded-2xl shadow-[0_0_30px_rgba(255,0,100,0.5)] hover:scale-105 hover:shadow-[0_0_50px_rgba(255,0,100,0.8)] transition-all uppercase tracking-widest"
-          >
-            Calculate Now 🔥
-          </button>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
+            <button
+              onClick={() => navigate("/love")}
+              className="px-10 py-5 w-full sm:w-auto bg-gradient-to-r from-accent to-pink-600 text-white font-heading text-xl md:text-2xl rounded-2xl shadow-[0_0_30px_rgba(255,0,100,0.5)] hover:scale-105 hover:shadow-[0_0_50px_rgba(255,0,100,0.8)] transition-all uppercase tracking-widest"
+            >
+              Calculate Now 🔥
+            </button>
+            <button
+              onClick={() => {
+                document.getElementById('singles-market-section')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="px-10 py-5 w-full sm:w-auto bg-black text-white font-heading text-xl md:text-2xl rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:scale-105 transition-all border border-white/20 uppercase tracking-widest"
+            >
+              Sell Your Single Friend 💀
+            </button>
+          </div>
         </div>
+
+        <div id="singles-market-section" className="w-full mt-16 scroll-mt-24">
+          {/* Public Singles Market */}
+          <SinglesMarket />
+        </div>
+
+        {/* Top Aura Legends Leaderboard */}
+        <TopAuraBoard />
 
       </div>
 
