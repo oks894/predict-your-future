@@ -8,11 +8,12 @@ import type { ScanEntry } from "@/lib/storage";
 import { ShieldAlert, Key, Users, Clock, AlertTriangle, QrCode, Save, Check, X, LayoutDashboard, Database, CheckSquare, MessageSquare, Settings } from "lucide-react";
 import AdminEntries from "@/components/admin/AdminEntries";
 import AdminReviews from "@/components/admin/AdminReviews";
+import AdminSingles from "@/components/admin/AdminSingles";
 
 const ADMIN_PASSWORD = "000000";
 const SESSION_KEY = "futurescan_admin";
 
-type Tab = 'dashboard' | 'prophecies' | 'verification' | 'reviews' | 'settings';
+type Tab = 'dashboard' | 'prophecies' | 'singles' | 'verification' | 'reviews' | 'settings';
 
 const Admin = () => {
   const [authed, setAuthed] = useState(false);
@@ -23,6 +24,7 @@ const Admin = () => {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
   
   const [entries, setEntries] = useState<ScanEntry[]>([]);
+  const [singles, setSingles] = useState<any[]>([]);
   const [pendingDares, setPendingDares] = useState<ScanEntry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [upiId, setUpiId] = useState("");
@@ -47,8 +49,11 @@ const Admin = () => {
   const loadData = async () => {
     setIsLoading(true);
     const data = await getEntries();
+    // Use dynamic import or type bypass for singles since types might be slightly out of sync in Admin.tsx
+    const singlesData = await import('@/lib/storage').then(m => m.getSingles());
     const dares = await getPendingDares();
     setEntries(data);
+    setSingles(singlesData);
     setPendingDares(dares);
     setIsLoading(false);
   };
@@ -148,6 +153,7 @@ const Admin = () => {
           {[
             { id: 'dashboard', label: 'Overview', icon: LayoutDashboard },
             { id: 'prophecies', label: 'Prophecies', icon: Database },
+            { id: 'singles', label: 'Singles Board', icon: Users },
             { id: 'verification', label: 'Queue', icon: CheckSquare, badge: pendingDares.length },
             { id: 'reviews', label: 'Reviews', icon: MessageSquare },
             { id: 'settings', label: 'Config', icon: Settings },
@@ -228,6 +234,15 @@ const Admin = () => {
         {activeTab === 'prophecies' && (
           <div className="animate-fade-in relative z-10">
             <AdminEntries entries={entries} isLoading={isLoading} onRefresh={loadData} />
+          </div>
+        )}
+
+        {activeTab === 'singles' && (
+          <div className="animate-fade-in relative z-10">
+            <h2 className="font-heading text-2xl font-black text-accent tracking-widest uppercase mb-8 flex items-center gap-3">
+              Singles Database
+            </h2>
+            <AdminSingles singles={singles} isLoading={isLoading} onRefresh={loadData} />
           </div>
         )}
 

@@ -25,6 +25,18 @@ export interface ScanEntry {
   dareProofPhoto?: string;
 }
 
+export interface SingleEntry {
+  id: string;
+  friendName: string;
+  age: number;
+  phoneNo: string;
+  talent: string;
+  photos: string[]; // up to 3 photos
+  timestamp: number;
+  dareStatus?: DareStatus;
+  shameReason?: string;
+}
+
 export interface Review {
   id: string;
   name: string;
@@ -146,6 +158,48 @@ export async function deleteEntry(id: string) {
     
   if (error) {
     console.error("Error deleting entry:", error);
+  }
+}
+
+export async function getSingles(): Promise<SingleEntry[]> {
+  const { data, error } = await supabase
+    .from('singles')
+    .select('*')
+    .order('timestamp', { ascending: false });
+
+  if (error) {
+    console.error("Error fetching singles:", error);
+    return [];
+  }
+  return data || [];
+}
+
+export async function addSingle(entry: SingleEntry) {
+  const { error } = await supabase.from('singles').insert([entry]);
+  if (error) {
+    console.error("Error inserting single:", error);
+  }
+}
+
+export async function deleteSingle(id: string) {
+  const { error } = await supabase
+    .from('singles')
+    .delete()
+    .eq('id', id);
+    
+  if (error) {
+    console.error("Error deleting single:", error);
+  }
+}
+
+export async function updateSingleDare(id: string, updates: Partial<SingleEntry>) {
+  const { error } = await supabase
+    .from('singles')
+    .update(updates)
+    .eq('id', id);
+    
+  if (error) {
+    console.error("Error updating single dare:", error);
   }
 }
 

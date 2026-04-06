@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
-import { getEntries, getAdminUpiId, getAdminIgAccount, updateEntryDare, syncAdminConfig } from "@/lib/storage";
-import type { ScanEntry } from "@/lib/storage";
+import { getEntries, getSingles, getAdminUpiId, getAdminIgAccount, updateEntryDare, updateSingleDare, syncAdminConfig } from "@/lib/storage";
+import type { ScanEntry, SingleEntry } from "@/lib/storage";
 import StarField from "@/components/StarField";
 
 const Index = () => {
@@ -15,8 +15,12 @@ const Index = () => {
 
   // Dashboard State
   const [showDashboard, setShowDashboard] = useState(false);
+  const [showSingles, setShowSingles] = useState(false);
   const [entries, setEntries] = useState<ScanEntry[]>([]);
+  const [singles, setSingles] = useState<SingleEntry[]>([]);
+  
   const [cowardPromptEntry, setCowardPromptEntry] = useState<ScanEntry | null>(null);
+  const [cowardSingleEntry, setCowardSingleEntry] = useState<SingleEntry | null>(null);
   const [paymentClicked, setPaymentClicked] = useState(false);
   const [proofText, setProofText] = useState("");
   const [isSubmittingProof, setIsSubmittingProof] = useState(false);
@@ -29,20 +33,31 @@ const Index = () => {
       setIgAccountState(getAdminIgAccount());
     });
     getEntries().then(setEntries);
+    getSingles().then(setSingles);
   }, []);
 
   return (
     <div className="min-h-[100dvh] bg-mystical relative overflow-hidden flex flex-col justify-between">
       <StarField />
 
-      {/* Floating Dashboard Toggle */}
-      <button 
-        onClick={() => setShowDashboard(true)}
-        className="fixed top-4 right-4 z-40 bg-secondary/80 backdrop-blur-md border border-white/10 rounded-full px-4 py-2 flex items-center gap-2 hover:bg-white/10 transition-colors shadow-lg group"
-      >
-        <span className="text-xl group-hover:scale-110 transition-transform">📂</span>
-        <span className="text-xs uppercase tracking-widest font-bold text-muted-foreground hidden sm:inline-block">Public Archives</span>
-      </button>
+      {/* Floating Dashboard Toggles */}
+      <div className="fixed top-4 right-4 z-40 flex gap-3">
+        <button 
+          onClick={() => setShowSingles(true)}
+          className="bg-accent/20 backdrop-blur-md border border-accent/30 rounded-full px-4 py-2 flex items-center gap-2 hover:bg-accent/40 shadow-[0_0_15px_rgba(255,0,100,0.3)] transition-all group"
+        >
+          <span className="text-xl group-hover:scale-110 transition-transform">🔥</span>
+          <span className="text-xs uppercase tracking-widest font-bold text-accent hidden sm:inline-block">Singles Market</span>
+        </button>
+
+        <button 
+          onClick={() => setShowDashboard(true)}
+          className="bg-secondary/80 backdrop-blur-md border border-white/10 rounded-full px-4 py-2 flex items-center gap-2 hover:bg-white/10 transition-colors shadow-lg group"
+        >
+          <span className="text-xl group-hover:scale-110 transition-transform">📂</span>
+          <span className="text-xs uppercase tracking-widest font-bold text-muted-foreground hidden lg:inline-block">Love Archives</span>
+        </button>
+      </div>
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 py-8 md:py-16 flex flex-col items-center justify-center flex-grow mt-12 sm:mt-0">
         
@@ -159,8 +174,86 @@ const Index = () => {
         </div>
       )}
 
-      {/* Coward Fund Modal / Take Down Hook */}
-      {cowardPromptEntry && (
+      {/* Singles Market Board */}
+      {showSingles && (
+        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col animate-in fade-in duration-300">
+          <div className="p-4 md:p-6 flex justify-between items-center border-b border-accent/20 bg-black/50 sticky top-0 z-10">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-heading text-accent glow-gold uppercase tracking-widest">Singles Market 🔥</h2>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">Auctioning off your desperate friends.</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => navigate('/expose')}
+                className="px-4 py-2 bg-accent text-accent-foreground text-xs uppercase tracking-widest font-bold rounded-full hover:scale-105 transition-transform"
+              >
+                + Expose Friend
+              </button>
+              <button 
+                onClick={() => setShowSingles(false)}
+                className="w-10 h-10 rounded-full bg-white/5 text-white flex items-center justify-center hover:bg-white/10 transition-colors border border-white/10"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-4 md:p-6">
+            <div className="max-w-6xl mx-auto grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              {singles.map((s) => (
+                <div key={s.id} className="bg-secondary/60 border border-white/10 rounded-3xl p-5 relative group flex flex-col shadow-2xl">
+                  {s.dareStatus === 'pending_removal' && (
+                    <div className="absolute inset-0 z-10 bg-black/80 backdrop-blur-sm rounded-3xl flex flex-col items-center justify-center p-4 text-center">
+                      <span className="text-4xl mb-2 animate-pulse">💸</span>
+                      <p className="text-yellow-400 font-bold uppercase tracking-widest text-sm mb-1">Under Review</p>
+                      <p className="text-xs text-muted-foreground">They paid the coward fee. Awaiting admin clearance.</p>
+                    </div>
+                  )}
+                  
+                  {/* Photo Scroller */}
+                  <div className="w-full aspect-[3/4] rounded-2xl overflow-x-auto overflow-y-hidden snap-x snap-mandatory flex scrollbar-hide border-2 border-accent/30 relative shadow-inner mb-4">
+                    {s.photos?.map((pic, idx) => (
+                       <img key={idx} src={pic} className="w-full h-full object-cover snap-center flex-shrink-0" alt="Exposed single" loading="lazy" />
+                    ))}
+                    {/* Image Counter Indicator */}
+                    <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-10">
+                      {s.photos?.map((_, idx) => (
+                         <div key={idx} className="w-1.5 h-1.5 rounded-full bg-white/80 shadow" />
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="text-left mb-4 flex-grow px-2">
+                    <h3 className="text-white font-black text-2xl tracking-wide flex items-baseline gap-2 mb-2">
+                       {s.friendName} <span className="text-accent text-lg font-mono">({s.age})</span>
+                    </h3>
+                    <div className="bg-black/40 border border-white/5 p-3 rounded-xl italic">
+                       <p className="text-foreground/80 text-sm leading-relaxed">{s.talent}</p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => { setCowardSingleEntry(s); setPaymentClicked(false); setProofText(""); }}
+                    className="w-full py-3 bg-[#F43F5E]/10 hover:bg-[#F43F5E]/20 text-[#F43F5E] border border-[#F43F5E]/30 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors mt-auto"
+                  >
+                    Take Down Result
+                  </button>
+                </div>
+              ))}
+              {singles.length === 0 && (
+                <div className="col-span-full text-center py-20 text-muted-foreground">
+                  <span className="text-4xl block mb-4 opacity-50">👻</span>
+                  <p className="uppercase tracking-widest text-sm">No singles exposed yet.</p>
+                  <button onClick={() => navigate('/expose')} className="mt-4 text-accent uppercase font-bold text-xs hover:underline">Upload a friend now</button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Coward Fund Modal / Take Down Hook (Shared by Both) */}
+      {(cowardPromptEntry || cowardSingleEntry) && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
           <div className="bg-secondary border border-primary/30 p-6 rounded-xl max-w-sm w-full relative shadow-[0_0_30px_rgba(212,175,55,0.2)]">
             {!paymentClicked ? (
@@ -168,7 +261,7 @@ const Index = () => {
                 <span className="text-5xl mb-4 block">⚖️</span>
                 <h2 className="text-2xl font-heading text-primary mb-2">Buy Your Silence</h2>
                 <p className="text-sm text-foreground/80 mb-6 leading-relaxed">
-                  Too embarrassed to leave <strong className="text-primary">{cowardPromptEntry.name}</strong> vs <strong className="text-accent">{cowardPromptEntry.crushName}</strong> on the public archives? Apply for removal below.
+                 Too embarrassed to leave <strong className="text-primary">{cowardPromptEntry ? cowardPromptEntry.name : cowardSingleEntry?.friendName}</strong> on the public archives? Apply for removal below.
                 </p>
 
                 <div className="space-y-4 mb-6 text-left">
@@ -205,7 +298,7 @@ const Index = () => {
 
                 <div className="flex gap-3">
                   <button
-                    onClick={() => { setCowardPromptEntry(null); setProofText(""); }}
+                    onClick={() => { setCowardPromptEntry(null); setCowardSingleEntry(null); setProofText(""); }}
                     className="flex-1 px-4 py-3 bg-muted/50 text-muted-foreground rounded-lg font-heading hover:bg-muted transition-colors uppercase tracking-wide text-sm"
                   >
                     Cancel
@@ -214,11 +307,21 @@ const Index = () => {
                     onClick={async () => {
                       if (!proofText.trim()) return;
                       setIsSubmittingProof(true);
-                      await updateEntryDare(cowardPromptEntry.id, {
-                        dareStatus: 'pending_removal',
-                        shameReason: proofText.trim()
-                      });
-                      setEntries(entries.map(e => e.id === cowardPromptEntry.id ? { ...e, dareStatus: 'pending_removal', shameReason: proofText.trim() } : e));
+                      
+                      if (cowardPromptEntry) {
+                        await updateEntryDare(cowardPromptEntry.id, {
+                          dareStatus: 'pending_removal',
+                          shameReason: proofText.trim()
+                        });
+                        setEntries(entries.map(e => e.id === cowardPromptEntry.id ? { ...e, dareStatus: 'pending_removal', shameReason: proofText.trim() } : e));
+                      } else if (cowardSingleEntry) {
+                        await updateSingleDare(cowardSingleEntry.id, {
+                          dareStatus: 'pending_removal',
+                          shameReason: proofText.trim()
+                        });
+                        setSingles(singles.map(e => e.id === cowardSingleEntry.id ? { ...e, dareStatus: 'pending_removal', shameReason: proofText.trim() } : e));
+                      }
+
                       setIsSubmittingProof(false);
                       setPaymentClicked(true);
                     }}
@@ -237,7 +340,7 @@ const Index = () => {
                   The admin will review your proof. Once verified, this embarrassing reality will be erased entirely.
                 </p>
                 <button
-                  onClick={() => { setPaymentClicked(false); setCowardPromptEntry(null); setProofText(""); }}
+                  onClick={() => { setPaymentClicked(false); setCowardPromptEntry(null); setCowardSingleEntry(null); setProofText(""); }}
                   className="w-full px-4 py-4 bg-secondary border border-border text-foreground hover:bg-secondary/80 rounded-lg font-heading transition-colors uppercase tracking-wider shadow-sm"
                 >
                   Done
