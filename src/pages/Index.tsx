@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { getEntries, getSingles, getAdminUpiId, getAdminIgAccount, updateEntryDare, updateSingleDare, syncAdminConfig } from "@/lib/storage";
 import type { ScanEntry, SingleEntry } from "@/lib/storage";
-import TopAuraBoard from "@/components/TopAuraBoard";
-import WallOfLove from "@/components/WallOfLove";
 import SinglesMarket from "@/components/SinglesMarket";
 import html2canvas from "html2canvas";
 import StarField from "@/components/StarField";
@@ -164,9 +162,6 @@ const Index = () => {
           {/* Public Singles Market */}
           <SinglesMarket />
         </div>
-
-        {/* Top Aura Legends Leaderboard */}
-        <TopAuraBoard />
 
       </div>
 
